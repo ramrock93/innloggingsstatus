@@ -1,6 +1,7 @@
 package no.nav.personbruker.innloggingsstatus.config
 
 data class Environment(
+    val applicationName: String = "innloggingsstatus",
     val openAMServiceUrl: String = getEnvVar("OPENAM_REST_SERVICE_URL"),
     val oidcIssuer: String = getEnvVar("OIDC_ISSUER"),
     val oidcDiscoveryUrl: String = getEnvVar("OIDC_DISCOVERY_URL"),
@@ -10,7 +11,11 @@ data class Environment(
     val pdlApiUrl: String = getEnvVar("PDL_API_URL"),
     val pdlApiGWKey: String = getEnvVar("PDL_API_GW_KEY"),
     val serviceUsername: String = getEnvVar("SERVICEUSER_USERNAME"),
-    val servicePassword: String = getEnvVar("SERVICEUSER_PASSWORD")
+    val servicePassword: String = getEnvVar("SERVICEUSER_PASSWORD"),
+    val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
+    val namespace: String = getEnvVar("NAIS_NAMESPACE"),
+    val sensuHost: String = getEnvVar("SENSU_HOST"),
+    val sensuPort: String = getEnvVar("SENSU_PORT")
 )
 
 private fun getEnvVar(varName: String): String {

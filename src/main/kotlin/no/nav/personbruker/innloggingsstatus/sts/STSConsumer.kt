@@ -7,6 +7,7 @@ import io.ktor.client.request.url
 import no.nav.personbruker.innloggingsstatus.common.apiKeyHeader
 import no.nav.personbruker.innloggingsstatus.common.basicAuth
 import no.nav.personbruker.innloggingsstatus.config.Environment
+import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URL
 
@@ -18,8 +19,15 @@ class STSConsumer(private val client: HttpClient, environment: Environment) {
     private val username = environment.serviceUsername
     private val password = environment.servicePassword
 
-    suspend fun getStsToken(): String {
-        return fetchStsToken().accessToken
+    private val log = LoggerFactory.getLogger(STSConsumer::class.java)
+
+    suspend fun getStsToken(): String? {
+        return try {
+            fetchStsToken().accessToken
+        } catch (e: Exception) {
+            log.warn("Klarte ikke hente sts-token", e)
+            null
+        }
     }
 
     private suspend fun fetchStsToken(): StsTokenResponse {

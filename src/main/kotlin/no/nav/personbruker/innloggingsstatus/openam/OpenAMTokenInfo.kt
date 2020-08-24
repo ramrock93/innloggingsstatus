@@ -8,4 +8,5 @@ data class OpenAMTokenInfo (
     override val authLevel: Int
 ): TokenInfo {
     override val expiryTime: LocalDateTime? get() = null
+    override val issueTime: LocalDateTime? get() = null
 }

@@ -2,20 +2,20 @@ package no.nav.personbruker.innloggingsstatus.pdl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.post
 import io.ktor.client.request.url
 import no.nav.personbruker.innloggingsstatus.common.apiKeyHeader
+import no.nav.personbruker.innloggingsstatus.common.bearerAuth
 import no.nav.personbruker.innloggingsstatus.common.readObject
 import no.nav.personbruker.innloggingsstatus.config.Environment
 import no.nav.personbruker.innloggingsstatus.pdl.query.*
-import no.nav.personbruker.innloggingsstatus.sts.STSConsumer
 import org.slf4j.LoggerFactory
 import java.lang.Exception
 import java.net.URI
 import java.net.URL
 
-class PdlConsumer(private val client: HttpClient, private val stsConsumer: STSConsumer, environment: Environment) {
+class PdlConsumer(private val client: HttpClient, environment: Environment) {
 
     val CONSUMER_ID = "innloggingsstatus"
     val GENERELL = "GEN"
@@ -27,23 +27,25 @@ class PdlConsumer(private val client: HttpClient, private val stsConsumer: STSCo
     val objectMapper = ObjectMapper()
 
 
-    suspend fun getPersonInfo(ident: String): PdlPersonInfo? {
-        return createSubjectNameRequest(ident).let { request ->
-            postPersonQuery(request)
-        }?.let { responseBody ->
+    suspend fun getPersonInfo(ident: String, stsToken: String): PdlPersonInfo? {
+
+        val request = createSubjectNameRequest(ident)
+
+        return postPersonQuery(request, stsToken)?.let { responseBody ->
             parsePdlResponse(responseBody)
         }
     }
 
-    private suspend fun postPersonQuery(request: SubjectNameRequest): String? {
+    private suspend fun postPersonQuery(request: SubjectNameRequest, stsToken: String): String? {
         return try {
-            val stsToken = stsConsumer.getStsToken()
-            client.get {
+            client.post {
                 url(URL("$endpoint/graphql"))
                 apiKeyHeader(apiKey)
+                bearerAuth(stsToken)
                 header("Nav-Consumer-Id", CONSUMER_ID)
                 header("Nav-Consumer-Token", stsToken)
                 header("Tema", GENERELL)
+                body = request
             }
         } catch (e: Exception) {
             log.warn("Feil ved kontakt mot PDL", e)

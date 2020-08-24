@@ -13,11 +13,8 @@ import no.nav.personbruker.innloggingsstatus.auth.authApi
 
 @KtorExperimentalAPI
 fun Application.mainModule() {
-    val environment = Environment()
 
     DefaultExports.initialize()
-
-    val httpClient = HttpClientBuilder.build()
 
     install(DefaultHeaders)
 

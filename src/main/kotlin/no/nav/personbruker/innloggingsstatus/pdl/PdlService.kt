@@ -1,10 +1,13 @@
 package no.nav.personbruker.innloggingsstatus.pdl
 
 import no.nav.personbruker.innloggingsstatus.pdl.query.PdlNavn
+import no.nav.personbruker.innloggingsstatus.sts.STSConsumer
 
-class PdlService(val pdlConsumer: PdlConsumer) {
+class PdlService(private val pdlConsumer: PdlConsumer, private val stsConsumer: STSConsumer) {
 
     suspend fun getSubjectName(ident: String): PdlNavn? {
-        return pdlConsumer.getPersonInfo(ident)?.navn?.first()
+        return stsConsumer.getStsToken()?.let { stsToken ->
+            return pdlConsumer.getPersonInfo(ident, stsToken)?.navn?.first()
+        }
     }
 }

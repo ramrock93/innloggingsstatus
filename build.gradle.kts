@@ -84,7 +84,17 @@ tasks {
         environment("OIDC_ISSUER", "http://localhost:9000")
         environment("OIDC_DISCOVERY_URL", "http://localhost:9000/.well-known/openid-configuration")
         environment("OIDC_ACCEPTED_AUDIENCE", "stubOidcClient")
-        environment("OPENAM_REST_SERVICE_URL", "dummy")
+        environment("OPENAM_REST_SERVICE_URL", "http://localhost:8095/openam")
+        environment("SECURITY_TOKEN_SERVICE_URL", "http://localhost:8095/security-token-service-token")
+        environment("STS_API_GW_KEY", "stsKey")
+        environment("PDL_API_URL", "http://localhost:8095/pdl-api")
+        environment("PDL_API_GW_KEY", "pdlKey")
+        environment("SERVICEUSER_USERNAME", "username")
+        environment("SERVICEUSER_PASSWORD", "password")
+        environment("NAIS_CLUSTER_NAME", "dev-sbs")
+        environment("NAIS_NAMESPACE", "local")
+        environment("SENSU_HOST", "stub")
+        environment("SENSU_PORT", "")
 
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath

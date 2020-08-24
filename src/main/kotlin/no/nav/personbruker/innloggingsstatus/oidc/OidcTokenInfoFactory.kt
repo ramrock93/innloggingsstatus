@@ -10,9 +10,10 @@ object OidcTokenInfoFactory {
 
         val ident: String = token.jwtTokenClaims.getStringClaim("sub")
         val authLevel = extractAuthLevel(token)
+        val issueTime = getTokenIssueLocalDateTime(token)
         val expiryTime = getTokenExpiryLocalDateTime(token)
 
-        return OidcTokenInfo(ident, authLevel, expiryTime)
+        return OidcTokenInfo(ident, authLevel, issueTime, expiryTime)
     }
 
     private fun extractAuthLevel(token: JwtToken): Int {
@@ -25,10 +26,13 @@ object OidcTokenInfoFactory {
     }
 
     private fun getTokenExpiryLocalDateTime(token: JwtToken): LocalDateTime {
-        return token.jwtTokenClaims
-                .expirationTime
-                .toInstant()
-                .atZone(ZoneId.of("Europe/Oslo"))
-                .toLocalDateTime()
+        return token.jwtTokenClaims.getStringClaim("exp")
+            .let { LocalDateTime.parse(it) }
     }
+
+    private fun getTokenIssueLocalDateTime(token: JwtToken): LocalDateTime {
+        return token.jwtTokenClaims.getStringClaim("iat")
+            .let { LocalDateTime.parse(it) }
+    }
+
 }
