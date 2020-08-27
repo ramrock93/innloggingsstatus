@@ -15,7 +15,9 @@ data class Environment(
     val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
     val namespace: String = getEnvVar("NAIS_NAMESPACE"),
     val sensuHost: String = getEnvVar("SENSU_HOST"),
-    val sensuPort: String = getEnvVar("SENSU_PORT")
+    val sensuPort: String = getEnvVar("SENSU_PORT"),
+    val stsCacheEnabled: String  = getEnvVar("STS_CACHE_ENABLED"),
+    val stsCacheExpiryMarginMinutes: String  = getEnvVar("STS_CACHE_EXPIRY_MARGIN_MINUTES")
 )
 
 private fun getEnvVar(varName: String): String {

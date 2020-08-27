@@ -5,10 +5,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.url
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import no.nav.personbruker.innloggingsstatus.common.apiKeyHeader
 import no.nav.personbruker.innloggingsstatus.common.bearerAuth
 import no.nav.personbruker.innloggingsstatus.common.readObject
 import no.nav.personbruker.innloggingsstatus.config.Environment
+import no.nav.personbruker.innloggingsstatus.config.JsonDeserialize.objectMapper
 import no.nav.personbruker.innloggingsstatus.pdl.query.*
 import org.slf4j.LoggerFactory
 import java.lang.Exception
@@ -24,22 +27,21 @@ class PdlConsumer(private val client: HttpClient, environment: Environment) {
     val apiKey = environment.pdlApiGWKey
 
     val log = LoggerFactory.getLogger(PdlConsumer::class.java)
-    val objectMapper = ObjectMapper()
 
-
-    suspend fun getPersonInfo(ident: String, stsToken: String): PdlPersonInfo? {
+    suspend fun getPersonInfo(ident: String, stsToken: String): PdlPersonInfo {
 
         val request = createSubjectNameRequest(ident)
 
-        return postPersonQuery(request, stsToken)?.let { responseBody ->
+        return postPersonQuery(request, stsToken).let { responseBody ->
             parsePdlResponse(responseBody)
         }
     }
 
-    private suspend fun postPersonQuery(request: SubjectNameRequest, stsToken: String): String? {
+    private suspend fun postPersonQuery(request: SubjectNameRequest, stsToken: String): String {
         return try {
             client.post {
                 url(URL("$endpoint/graphql"))
+                contentType(ContentType.Application.Json)
                 apiKeyHeader(apiKey)
                 bearerAuth(stsToken)
                 header("Nav-Consumer-Id", CONSUMER_ID)
@@ -49,26 +51,37 @@ class PdlConsumer(private val client: HttpClient, environment: Environment) {
             }
         } catch (e: Exception) {
             log.warn("Feil ved kontakt mot PDL", e)
-            null
+            throw e
         }
     }
 
-    private fun parsePdlResponse(json: String): PdlPersonInfo? {
+    private fun parsePdlResponse(json: String): PdlPersonInfo {
         return try {
             val personResponse: PdlResponse = objectMapper.readObject(json)
             return personResponse.data.person
         } catch (e: Exception) {
             handleErrorResponse(json)
-            null
         }
     }
 
-    private fun handleErrorResponse(json: String) {
+    private fun handleErrorResponse(json: String): Nothing {
         try {
             val errorResponse: PdlErrorResponse = objectMapper.readObject(json)
             logErrorResponse(errorResponse)
+            throwAppropriateException(errorResponse)
         } catch (e: Exception) {
             log.warn("Feil ved deserialisering av svar fra pdl. Response-body lengde [${json.length}]", e)
+            throw e
+        }
+    }
+
+    private fun throwAppropriateException(response: PdlErrorResponse): Nothing {
+        val firstError = response.errors.first().errorType
+
+        if (firstError == PDLErrorType.NOT_AUTHENTICATED) {
+            throw PdlAuthenticationException("Fikk autentiseringsfeil mot PDL [$firstError]")
+        } else {
+            throw Exception("Fikk feil fra pdl med type [$firstError]")
         }
     }
 

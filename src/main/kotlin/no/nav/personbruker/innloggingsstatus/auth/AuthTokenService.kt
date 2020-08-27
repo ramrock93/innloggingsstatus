@@ -9,6 +9,7 @@ import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
 import no.nav.personbruker.innloggingsstatus.user.SubjectNameService
+import org.slf4j.LoggerFactory
 import kotlin.coroutines.CoroutineContext
 
 @KtorExperimentalAPI
@@ -17,7 +18,18 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
                        private val subjectNameService: SubjectNameService,
                        private val metricsCollector: MetricsCollector) {
 
-    suspend fun getAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
+    val log = LoggerFactory.getLogger(AuthTokenService::class.java)
+
+    suspend fun getAuthenticatedUserInfo(call: ApplicationCall): UserInfo {
+        try {
+            return fetchAndParseAuthenticatedUserInfo(call)
+        } catch (e: Exception) {
+            log.warn("Feil ved henting av brukers innloggingsinfo", e)
+            throw e
+        }
+    }
+
+    private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
 

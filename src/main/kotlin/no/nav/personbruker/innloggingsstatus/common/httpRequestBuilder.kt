@@ -17,11 +17,3 @@ fun HttpRequestBuilder.bearerAuth(token: String) {
 fun HttpRequestBuilder.apiKeyHeader(apiKey: String) {
     header("x-nav-apiKey", apiKey)
 }
-
-private fun encode64(string: String): String {
-    return string.toByteArray(charset("UTF-8")).let { bytes ->
-        Base64.getEncoder().encodeToString(bytes)
-    }
-}
-
-fun String.toBase64() = encode64(this)

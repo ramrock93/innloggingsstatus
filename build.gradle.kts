@@ -4,6 +4,7 @@ val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
 val kotlinVersion = "1.3.50"
 val jacksonVersion = "2.9.9"
+val jacksonKotlinModuleVersion = "2.9.10"
 val spekVersion = "2.0.6"
 val mockKVersion = "1.9.3"
 val assertJVersion = "3.12.2"
@@ -51,6 +52,7 @@ dependencies {
     compile("ch.qos.logback:logback-classic:$logbackVersion")
     compile("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinModuleVersion")
     compile("org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
     compile("com.github.navikt.dittnav-common-lib:dittnav-common-logging:$dittnavLibVersion")
     compile("com.github.navikt.dittnav-common-lib:dittnav-common-metrics:$dittnavLibVersion")
@@ -80,11 +82,18 @@ tasks {
         kotlinOptions.jvmTarget = "1.8"
     }
 
+    withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+    }
+
     register("runServer", JavaExec::class) {
         environment("OIDC_ISSUER", "http://localhost:9000")
         environment("OIDC_DISCOVERY_URL", "http://localhost:9000/.well-known/openid-configuration")
         environment("OIDC_ACCEPTED_AUDIENCE", "stubOidcClient")
-        environment("OPENAM_REST_SERVICE_URL", "http://localhost:8095/openam")
+        environment("OPENAM_REST_SERVICE_URL", "http://localhost:8095/esso")
         environment("SECURITY_TOKEN_SERVICE_URL", "http://localhost:8095/security-token-service-token")
         environment("STS_API_GW_KEY", "stsKey")
         environment("PDL_API_URL", "http://localhost:8095/pdl-api")
@@ -95,6 +104,8 @@ tasks {
         environment("NAIS_NAMESPACE", "local")
         environment("SENSU_HOST", "stub")
         environment("SENSU_PORT", "")
+        environment("STS_CACHE_ENABLED", "false")
+        environment("STS_CACHE_EXPIRY_MARGIN_MINUTES", "5")
 
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath

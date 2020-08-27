@@ -1,11 +1,12 @@
 package no.nav.personbruker.innloggingsstatus.openam
 
+
 data class OpenAMTokenResponse (
     val token: Token,
     val attributes: List<Attribute>
 )
 
-data class Token(
+data class Token (
     val tokenId: String
 )
 

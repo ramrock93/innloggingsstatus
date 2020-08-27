@@ -21,12 +21,12 @@ class STSConsumer(private val client: HttpClient, environment: Environment) {
 
     private val log = LoggerFactory.getLogger(STSConsumer::class.java)
 
-    suspend fun getStsToken(): String? {
+    suspend fun getStsToken(): String {
         return try {
             fetchStsToken().accessToken
         } catch (e: Exception) {
             log.warn("Klarte ikke hente sts-token", e)
-            null
+            throw e
         }
     }
 

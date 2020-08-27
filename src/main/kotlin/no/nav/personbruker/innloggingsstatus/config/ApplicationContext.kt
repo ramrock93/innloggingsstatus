@@ -1,5 +1,6 @@
 package no.nav.personbruker.innloggingsstatus.config
 
+import io.ktor.client.HttpClient
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
@@ -14,7 +15,11 @@ import no.nav.personbruker.innloggingsstatus.openam.OpenAMConsumer
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
 import no.nav.personbruker.innloggingsstatus.pdl.PdlConsumer
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
+import no.nav.personbruker.innloggingsstatus.sts.CachingStsService
+import no.nav.personbruker.innloggingsstatus.sts.NonCachingStsService
 import no.nav.personbruker.innloggingsstatus.sts.STSConsumer
+import no.nav.personbruker.innloggingsstatus.sts.StsService
+import no.nav.personbruker.innloggingsstatus.sts.cache.StsTokenCache
 import no.nav.personbruker.innloggingsstatus.user.SubjectNameService
 
 @KtorExperimentalAPI
@@ -30,9 +35,9 @@ class ApplicationContext(config: ApplicationConfig) {
     val openAMConsumer = OpenAMConsumer(httpClient, environment)
     val openAMValidationService = OpenAMTokenService(openAMConsumer)
 
-    val stsConsumer = STSConsumer(httpClient, environment)
     val pdlConsumer = PdlConsumer(httpClient, environment)
-    val pdlService = PdlService(pdlConsumer, stsConsumer)
+    val stsService = resolveStsService(httpClient, environment)
+    val pdlService = PdlService(pdlConsumer, stsService)
 
     val subjectNameService = SubjectNameService(pdlService)
 
@@ -58,5 +63,16 @@ private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
         )
 
         InfluxMetricsReporter(sensuConfig)
+    }
+}
+
+private fun resolveStsService(httpClient: HttpClient, environment: Environment): StsService {
+    val stsConsumer = STSConsumer(httpClient, environment)
+
+    return if (environment.stsCacheEnabled.toBoolean()) {
+        val stsTokenCache = StsTokenCache(stsConsumer, environment)
+        CachingStsService(stsTokenCache)
+    } else {
+        NonCachingStsService(stsConsumer)
     }
 }

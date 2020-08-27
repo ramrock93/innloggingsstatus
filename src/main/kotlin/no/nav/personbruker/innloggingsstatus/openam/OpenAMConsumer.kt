@@ -7,6 +7,8 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import no.nav.personbruker.innloggingsstatus.common.readObject
 import no.nav.personbruker.innloggingsstatus.config.Environment
+import no.nav.personbruker.innloggingsstatus.config.JsonDeserialize.objectMapper
+import org.slf4j.LoggerFactory
 import java.lang.Exception
 import java.net.URI
 import java.net.URL
@@ -17,7 +19,8 @@ class OpenAMConsumer(
 ) {
 
     private val openAMServiceUrl = URI(environment.openAMServiceUrl)
-    private val objectMapper = ObjectMapper()
+
+    private val log = LoggerFactory.getLogger(OpenAMConsumer::class.java)
 
     suspend fun getOpenAMTokenAttributes(token: String): OpenAMResponse? {
         return fetchOpenAmTokenAttributesJsonString(token)?.let {json ->
@@ -45,13 +48,16 @@ class OpenAMConsumer(
 
     private suspend fun fetchOpenAmTokenAttributesJsonString(token: String): String? {
         return try {
-             client.get {
+             val response: String = client.get {
                 url(URL("$openAMServiceUrl/identity/json/attributes"))
                 parameter("subjectId", token)
                 parameter("attributenames", "uid")
                 parameter("attributenames", "SecurityLevel")
             }
+
+            response
         } catch (e: Exception) {
+            log.warn("Feil ved henting av atributter for nav-esso token", e)
             null
         }
     }
