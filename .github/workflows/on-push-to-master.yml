@@ -1,0 +1,50 @@
+name: Bygg og publiser docker-image for master
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - .github/workflows/**
+
+jobs:
+  build-and-publish-on-master:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Sjekk ut koden
+        uses: actions/checkout@v2
+
+      - name: Kompiler
+        uses: navikt/pb-common-gh-actions/build@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bygg, tag og push Docker image
+        uses: navikt/pb-common-gh-actions/docker-publish@v1
+        with:
+          TAG_LATEST: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag release i git-repo-et
+        run: |
+          TAG="$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(git log -1 --pretty='%h')"
+          git config user.name "Team Personbruker CI"
+          git config user.email "personbruker@nav.no"
+          git tag $TAG
+          git push origin $TAG
+
+      - name: Sjekk om prodsetting er mulig
+        run: echo "::set-env name=PROD_SBS_VARS_TEMPLATE_DEFINED::$([[ -f ./nais/prod-sbs/default.json ]] && echo 'true' || echo 'false')"
+
+      - name: 'Deploy-er til default i prod-sbs'
+        if: env.PROD_SBS_VARS_TEMPLATE_DEFINED == 'true'
+        uses: 'nais/deploy/actions/deploy@v1'
+        env:
+          REF: ${{ github.sha }}
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-sbs
+          RESOURCE: ./nais/nais.yaml
+          VARS: ./nais/prod-sbs/default.json
+          VAR: version=${{ env.IMAGE }}
+          PRINT_PAYLOAD: true
