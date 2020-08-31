@@ -2,7 +2,7 @@ package no.nav.personbruker.innloggingsstatus.config
 
 data class Environment(
     val applicationName: String = "innloggingsstatus",
-    val openAMServiceUrl: String = getEnvVar("OPENAM_REST_SERVICE_URL"),
+    val openAMServiceUrl: String = getEnvVar("OPEN_AM_REST_SERVICE_URL"),
     val oidcIssuer: String = getEnvVar("OIDC_ISSUER"),
     val oidcDiscoveryUrl: String = getEnvVar("OIDC_DISCOVERY_URL"),
     val oidcAcceptetAudience: String = getEnvVar("OIDC_ACCEPTED_AUDIENCE"),

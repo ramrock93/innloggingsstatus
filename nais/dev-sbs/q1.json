@@ -1,0 +1,9 @@
+{
+  "namespace": "q1",
+  "cluster": "preprod",
+  "environment": "dev",
+  "vault_consumer_name": "innloggingsstatus_q1",
+  "ingresses": [
+    "https://innloggingsstatus-q1.dev.nav.no"
+  ]
+}

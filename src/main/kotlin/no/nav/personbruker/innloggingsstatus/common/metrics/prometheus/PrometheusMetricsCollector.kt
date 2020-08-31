@@ -11,14 +11,14 @@ object PrometheusMetricsCollector {
     private const val AUTH_REQUESTS_HANDLED_NAME = "auth_requests_handled"
     private const val NOT_AUTHENTICATED_NAME = "auth_not_authenticated"
     private const val AUTHENTICATED_WITH_OIDC_NAME = "auth_authenticated_with_oidc"
-    private const val AUTHENTICATED_WITH_OPENAM_NAME = "auth_authenticated_with_open_am"
+    private const val AUTHENTICATED_WITH_OPEN_AM_NAME = "auth_authenticated_with_open_am"
     private const val AUTHENTICATED_WITH_BOTH_NAME = "auth_authenticated_with_both"
     private const val AUTHENTICATED_WITH_BOTH_TWO_SUBJECTS_NAME = "auth_authenticated_with_both_two_users"
     private const val AUTH_LEVEL_OIDC_THREE_NAME = "auth_level_oidc_3"
     private const val AUTH_LEVEL_OIDC_FOUR_NAME = "auth_level_oidc_4"
     private const val AUTH_LEVEL_OPEN_AM_THREE_NAME = "auth_level_open_am_3"
     private const val AUTH_LEVEL_OPEN_AM_FOUR_NAME = "auth_level_open_am_4"
-    private const val AUTH_STEP_UP_OPENAM_NAME = "auth_step_up_open_am"
+    private const val AUTH_STEP_UP_OPEN_AM_NAME = "auth_step_up_open_am"
     private const val AUTH_STEP_UP_OIDC_NAME = "auth_step_up_oidc"
     
     private val AUTH_REQUESTS_HANDLED: Counter = Counter.build()
@@ -39,8 +39,8 @@ object PrometheusMetricsCollector {
         .help("Number of requests authenticated with oidc only")
         .register()
     
-    private val AUTHENTICATED_WITH_OPENAM: Counter = Counter.build()
-        .name(AUTHENTICATED_WITH_OPENAM_NAME)
+    private val AUTHENTICATED_WITH_OPEN_AM: Counter = Counter.build()
+        .name(AUTHENTICATED_WITH_OPEN_AM_NAME)
         .namespace(NAMESPACE)
         .help("Number of requests authenticated with openAM only")
         .register()
@@ -81,8 +81,8 @@ object PrometheusMetricsCollector {
         .help("Number of requests for which there exists an openAM token with auth level 4")
         .register()
     
-    private val AUTH_STEP_UP_OPENAM: Counter = Counter.build()
-        .name(AUTH_STEP_UP_OPENAM_NAME)
+    private val AUTH_STEP_UP_OPEN_AM: Counter = Counter.build()
+        .name(AUTH_STEP_UP_OPEN_AM_NAME)
         .namespace(NAMESPACE)
         .help("Number requests authenticated with both oidc and openAM where the openAM token has the higher auth level")
         .register()
@@ -104,7 +104,7 @@ object PrometheusMetricsCollector {
         when (metricsAggregate.authenticationState) {
             NONE -> NOT_AUTHENTICATED.inc()
             OIDC -> AUTHENTICATED_WITH_OIDC.inc()
-            OPEN_AM -> AUTHENTICATED_WITH_OPENAM.inc()
+            OPEN_AM -> AUTHENTICATED_WITH_OPEN_AM.inc()
             OIDC_AND_OPEN_AM -> AUTHENTICATED_WITH_BOTH.inc()
             UNSTABLE_OIDC_AND_OPEN_AM -> AUTHENTICATED_WITH_BOTH_TWO_SUBJECTS.inc()
         }
@@ -127,7 +127,7 @@ object PrometheusMetricsCollector {
             if (metricsAggregate.oidcMetrics.authLevel > metricsAggregate.openAMMetrics.authLevel) {
                 AUTH_STEP_UP_OIDC.inc()
             } else if (metricsAggregate.oidcMetrics.authLevel < metricsAggregate.openAMMetrics.authLevel) {
-                AUTH_STEP_UP_OPENAM.inc()
+                AUTH_STEP_UP_OPEN_AM.inc()
             }
         }
     }

@@ -7,6 +7,7 @@ import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.SensuConfig
+import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
@@ -15,6 +16,7 @@ import no.nav.personbruker.innloggingsstatus.openam.OpenAMConsumer
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
 import no.nav.personbruker.innloggingsstatus.pdl.PdlConsumer
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
+import no.nav.personbruker.innloggingsstatus.pdl.query.PdlNavn
 import no.nav.personbruker.innloggingsstatus.sts.CachingStsService
 import no.nav.personbruker.innloggingsstatus.sts.NonCachingStsService
 import no.nav.personbruker.innloggingsstatus.sts.STSConsumer
@@ -39,7 +41,8 @@ class ApplicationContext(config: ApplicationConfig) {
     val stsService = resolveStsService(httpClient, environment)
     val pdlService = PdlService(pdlConsumer, stsService)
 
-    val subjectNameService = SubjectNameService(pdlService)
+    val subjectNameCache = EvictingCache<String, PdlNavn>()
+    val subjectNameService = SubjectNameService(pdlService, subjectNameCache)
 
     val metricsReporter = resolveMetricsReporter(environment)
     val metricsCollector = MetricsCollector(metricsReporter)

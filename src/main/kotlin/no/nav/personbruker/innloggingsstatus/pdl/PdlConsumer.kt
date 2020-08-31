@@ -58,7 +58,7 @@ class PdlConsumer(private val client: HttpClient, environment: Environment) {
     private fun parsePdlResponse(json: String): PdlPersonInfo {
         return try {
             val personResponse: PdlResponse = objectMapper.readObject(json)
-            return personResponse.data.person
+            personResponse.data.person
         } catch (e: Exception) {
             handleErrorResponse(json)
         }

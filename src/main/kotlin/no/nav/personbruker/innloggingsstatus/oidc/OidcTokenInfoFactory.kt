@@ -1,15 +1,11 @@
 package no.nav.personbruker.innloggingsstatus.oidc
 
-import io.ktor.util.date.toGMTDate
 import no.nav.personbruker.innloggingsstatus.common.toUtcDateTime
 import no.nav.security.token.support.core.jwt.JwtToken
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 
 object OidcTokenInfoFactory {
-
-    private val IDENT_CLAIM_REGEX = "^[0-9]{1,11}$".toRegex()
 
     fun mapOidcTokenInfo(token: JwtToken): OidcTokenInfo {
 
@@ -43,11 +39,13 @@ object OidcTokenInfoFactory {
     }
 
     private fun getIdent(token: JwtToken): String {
-        return token.jwtTokenClaims.getStringClaim("sub").takeIf { sub ->
-            IDENT_CLAIM_REGEX.matches(sub)
-        }?: token.jwtTokenClaims.getStringClaim("pid").takeIf { pid ->
-            IDENT_CLAIM_REGEX.matches(pid)
-        }?: throw RuntimeException("Fant ikke et token-claim som så ut som en ident i 'sub' eller 'pid'.")
+        val claims = token.jwtTokenClaims
+
+        return when {
+            claims.allClaims.containsKey("pid") -> claims.getStringClaim("pid")
+            claims.allClaims.containsKey("sub") -> claims.getStringClaim("sub")
+            else -> throw RuntimeException("Fant ikke et token-claim med ident i 'pid' eller 'sub'.")
+        }
     }
 
 }

@@ -15,7 +15,7 @@ val kotlinxCoroutinesVersion = "1.3.3"
 val kotlinxHtmlVersion = "0.6.12"
 val jjwtVersion = "0.11.0"
 val bcproVersion = "1.64"
-val dittnavLibVersion = "0.1.2"
+val dittnavLibVersion = "0.3.0"
 
 
 plugins {
@@ -55,6 +55,7 @@ dependencies {
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinModuleVersion")
     compile("org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
     compile("com.github.navikt.dittnav-common-lib:dittnav-common-logging:$dittnavLibVersion")
+    compile("com.github.navikt.dittnav-common-lib:dittnav-common-utils:$dittnavLibVersion")
     compile("com.github.navikt.dittnav-common-lib:dittnav-common-metrics:$dittnavLibVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testCompile(kotlin("test-junit5"))
@@ -93,7 +94,7 @@ tasks {
         environment("OIDC_ISSUER", "http://localhost:9000")
         environment("OIDC_DISCOVERY_URL", "http://localhost:9000/.well-known/openid-configuration")
         environment("OIDC_ACCEPTED_AUDIENCE", "stubOidcClient")
-        environment("OPENAM_REST_SERVICE_URL", "http://localhost:8095/esso")
+        environment("OPEN_AM_REST_SERVICE_URL", "http://localhost:8095/esso")
         environment("SECURITY_TOKEN_SERVICE_URL", "http://localhost:8095/security-token-service-token")
         environment("STS_API_GW_KEY", "stsKey")
         environment("PDL_API_URL", "http://localhost:8095/pdl-api")
