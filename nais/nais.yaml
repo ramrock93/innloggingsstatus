@@ -32,7 +32,7 @@ spec:
       - kvPath: /serviceuser/data/{{environment}}/srvinnloggstatus
         mountPath: /secret/serviceuser
       - kvPath: /apikey/apigw/{{vault_namespace}}/pdl-api/{{vault_consumer_name}}
-      mountPath: /secret/pdl_apiKey
+        mountPath: /secret/pdl_apiKey
       - kvPath: /apikey/apigw/{{vault_namespace}}/security-token-service-token/{{vault_consumer_name}}
         mountPath: /secret/sts_apiKey
   resources:
