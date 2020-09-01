@@ -37,8 +37,9 @@ class ApplicationContext(config: ApplicationConfig) {
     val openAMConsumer = OpenAMConsumer(httpClient, environment)
     val openAMValidationService = OpenAMTokenService(openAMConsumer)
 
+    val stsConsumer = STSConsumer(httpClient, environment)
     val pdlConsumer = PdlConsumer(httpClient, environment)
-    val stsService = resolveStsService(httpClient, environment)
+    val stsService = resolveStsService(stsConsumer, environment)
     val pdlService = PdlService(pdlConsumer, stsService)
 
     val subjectNameCache = EvictingCache<String, PdlNavn>()
@@ -49,7 +50,7 @@ class ApplicationContext(config: ApplicationConfig) {
 
     val authTokenService = AuthTokenService(oidcValidationService, openAMValidationService, subjectNameService, metricsCollector)
 
-//    val healthService = HealthService(this)
+    val selfTests = listOf(openAMConsumer, stsConsumer, pdlConsumer)
 }
 
 private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
@@ -69,8 +70,7 @@ private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
     }
 }
 
-private fun resolveStsService(httpClient: HttpClient, environment: Environment): StsService {
-    val stsConsumer = STSConsumer(httpClient, environment)
+private fun resolveStsService(stsConsumer: STSConsumer, environment: Environment): StsService {
 
     return if (environment.stsCacheEnabled.toBoolean()) {
         val stsTokenCache = StsTokenCache(stsConsumer, environment)

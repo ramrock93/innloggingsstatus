@@ -7,12 +7,15 @@ import io.ktor.client.request.url
 import no.nav.personbruker.innloggingsstatus.common.apiKeyHeader
 import no.nav.personbruker.innloggingsstatus.common.basicAuth
 import no.nav.personbruker.innloggingsstatus.config.Environment
+import no.nav.personbruker.innloggingsstatus.health.SelfTest
+import no.nav.personbruker.innloggingsstatus.health.ServiceStatus
+import no.nav.personbruker.innloggingsstatus.pdl.health.LivenessStatus
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URL
 
 
-class STSConsumer(private val client: HttpClient, environment: Environment) {
+class STSConsumer(private val client: HttpClient, environment: Environment): SelfTest {
 
     private val endpoint = URI(environment.securityTokenServiceUrl)
     private val apiKey = environment.stsApiGWKey
@@ -20,6 +23,8 @@ class STSConsumer(private val client: HttpClient, environment: Environment) {
     private val password = environment.servicePassword
 
     private val log = LoggerFactory.getLogger(STSConsumer::class.java)
+
+    override val externalServiceName: String get() = "Security-Token-Service"
 
     suspend fun getStsToken(): String {
         return try {
@@ -37,6 +42,24 @@ class STSConsumer(private val client: HttpClient, environment: Environment) {
             parameter("scope", "openid")
             apiKeyHeader(apiKey)
             basicAuth(username, password)
+        }
+    }
+
+    override suspend fun externalServiceStatus(): ServiceStatus {
+        return try {
+            when (getLivenessResponse()) {
+                true -> ServiceStatus.OK
+                false -> ServiceStatus.ERROR
+            }
+        } catch (e: Exception) {
+            ServiceStatus.ERROR
+        }
+    }
+
+    private suspend fun getLivenessResponse(): Boolean {
+        return client.get {
+            url(URL("$endpoint/isAlive"))
+            apiKeyHeader(apiKey)
         }
     }
 }

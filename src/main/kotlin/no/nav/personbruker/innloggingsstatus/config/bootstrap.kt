@@ -10,6 +10,7 @@ import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.personbruker.innloggingsstatus.auth.authApi
+import no.nav.personbruker.innloggingsstatus.health.healthApi
 
 @KtorExperimentalAPI
 fun Application.mainModule() {
@@ -27,7 +28,7 @@ fun Application.mainModule() {
     }
 
     routing {
-//        healthApi(environment)
+        healthApi(applicationContext.selfTests)
         authApi(applicationContext.authTokenService)
     }
 }

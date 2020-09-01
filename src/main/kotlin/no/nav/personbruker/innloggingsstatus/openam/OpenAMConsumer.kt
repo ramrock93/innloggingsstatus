@@ -1,13 +1,17 @@
 package no.nav.personbruker.innloggingsstatus.openam
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.url
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
 import no.nav.personbruker.innloggingsstatus.common.readObject
 import no.nav.personbruker.innloggingsstatus.config.Environment
 import no.nav.personbruker.innloggingsstatus.config.JsonDeserialize.objectMapper
+import no.nav.personbruker.innloggingsstatus.health.SelfTest
+import no.nav.personbruker.innloggingsstatus.health.ServiceStatus
+import no.nav.personbruker.innloggingsstatus.openam.health.DUMMY_SUBJECT_TOKEN
 import org.slf4j.LoggerFactory
 import java.lang.Exception
 import java.net.URI
@@ -16,11 +20,13 @@ import java.net.URL
 class OpenAMConsumer(
     private val client: HttpClient,
     environment: Environment
-) {
+) : SelfTest {
 
-    private val openAMServiceUrl = URI(environment.openAMServiceUrl)
+    private val endpoint = URI(environment.openAMServiceUrl)
 
     private val log = LoggerFactory.getLogger(OpenAMConsumer::class.java)
+
+    override val externalServiceName: String get() = "OpenAm / Nav-esso"
 
     suspend fun getOpenAMTokenAttributes(token: String): OpenAMResponse? {
         return fetchOpenAmTokenAttributesJsonString(token)?.let {json ->
@@ -49,7 +55,7 @@ class OpenAMConsumer(
     private suspend fun fetchOpenAmTokenAttributesJsonString(token: String): String? {
         return try {
              val response: String = client.get {
-                url(URL("$openAMServiceUrl/identity/json/attributes"))
+                url(URL("$endpoint/identity/json/attributes"))
                 parameter("subjectId", token)
                 parameter("attributenames", "uid")
                 parameter("attributenames", "SecurityLevel")
@@ -59,6 +65,27 @@ class OpenAMConsumer(
         } catch (e: Exception) {
             log.warn("Feil ved henting av atributter for nav-esso token", e)
             null
+        }
+    }
+
+
+    // The esso service does not appear to offer a dedicated liveness path, and performing a call on behalf of a
+    // dummy token and checking whether we got the expected 401 http-response seems to be the convention
+    override suspend fun externalServiceStatus(): ServiceStatus {
+        return try {
+            when (probeForLiveness().status) {
+                HttpStatusCode.Unauthorized -> ServiceStatus.OK
+                else -> ServiceStatus.ERROR
+            }
+        } catch (e: Exception) {
+            ServiceStatus.ERROR
+        }
+    }
+
+    private suspend fun probeForLiveness(): HttpResponse {
+        return client.get {
+            url(URL("$endpoint/identity/json/attributes"))
+            parameter("subjectId", DUMMY_SUBJECT_TOKEN)
         }
     }
 

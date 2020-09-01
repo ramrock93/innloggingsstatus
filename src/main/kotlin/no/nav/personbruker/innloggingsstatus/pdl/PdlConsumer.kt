@@ -1,7 +1,7 @@
 package no.nav.personbruker.innloggingsstatus.pdl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.url
@@ -12,13 +12,17 @@ import no.nav.personbruker.innloggingsstatus.common.bearerAuth
 import no.nav.personbruker.innloggingsstatus.common.readObject
 import no.nav.personbruker.innloggingsstatus.config.Environment
 import no.nav.personbruker.innloggingsstatus.config.JsonDeserialize.objectMapper
+import no.nav.personbruker.innloggingsstatus.health.SelfTest
+import no.nav.personbruker.innloggingsstatus.health.ServiceStatus
+import no.nav.personbruker.innloggingsstatus.pdl.health.LivenessStatus
+import no.nav.personbruker.innloggingsstatus.pdl.health.PdlLivenessResponse
 import no.nav.personbruker.innloggingsstatus.pdl.query.*
 import org.slf4j.LoggerFactory
-import java.lang.Exception
 import java.net.URI
 import java.net.URL
+import kotlin.Exception
 
-class PdlConsumer(private val client: HttpClient, environment: Environment) {
+class PdlConsumer(private val client: HttpClient, environment: Environment): SelfTest {
 
     val CONSUMER_ID = "innloggingsstatus"
     val GENERELL = "GEN"
@@ -27,6 +31,8 @@ class PdlConsumer(private val client: HttpClient, environment: Environment) {
     val apiKey = environment.pdlApiGWKey
 
     val log = LoggerFactory.getLogger(PdlConsumer::class.java)
+
+    override val externalServiceName: String get() = "PDL-api"
 
     suspend fun getPersonInfo(ident: String, stsToken: String): PdlPersonInfo {
 
@@ -93,6 +99,25 @@ class PdlConsumer(private val client: HttpClient, environment: Environment) {
             PDLErrorType.NOT_AUTHENTICATED -> log.warn("Autentiseringsfeil mot PDL. Feil i brukertoken eller systemtoken.")
             PDLErrorType.ABAC_ERROR -> log.warn("Systembruker har ikke tilgang til opplysning")
             PDLErrorType.UNKNOWN_ERROR -> log.warn("Ukjent feil mot PDL")
+        }
+    }
+
+    override suspend fun externalServiceStatus(): ServiceStatus {
+        return try {
+            val response = getLivenessResponse()
+            when (response.status) {
+                LivenessStatus.UP -> ServiceStatus.OK
+                else -> ServiceStatus.ERROR
+            }
+        } catch (e: Exception) {
+            ServiceStatus.ERROR
+        }
+    }
+
+    private suspend fun getLivenessResponse(): PdlLivenessResponse {
+        return client.get {
+            url(URL("$endpoint/internal/health/liveness"))
+            apiKeyHeader(apiKey)
         }
     }
 }
