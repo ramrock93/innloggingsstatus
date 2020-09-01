@@ -5,6 +5,7 @@
   "environment": "dev",
   "vault_consumer_name": "innloggingsstatus_q1",
   "ingresses": [
-    "https://innloggingsstatus-q1.dev.nav.no"
+    "https://innloggingsstatus.dev.nav.no",
+    "https://innloggingsstatus-q1.dev-sbs.nais.io"
   ]
 }
