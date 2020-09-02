@@ -1,5 +1,6 @@
 package no.nav.personbruker.innloggingsstatus.sts.jwt
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
@@ -34,6 +35,7 @@ object JwtTokenDecoder {
     }
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 private class JwtPayload constructor(@JsonProperty(value = "exp") expiryTime: String) {
     val expiryTime = expiryTime.toLong()
 }
