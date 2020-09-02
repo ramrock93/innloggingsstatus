@@ -6,22 +6,30 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import no.nav.personbruker.innloggingsstatus.common.fromBase64
 import no.nav.personbruker.innloggingsstatus.common.readObject
 import no.nav.personbruker.innloggingsstatus.config.JsonDeserialize.objectMapper
+import org.slf4j.LoggerFactory
 import java.lang.Exception
 import java.time.Instant
 
 object JwtTokenDecoder {
 
+    val log = LoggerFactory.getLogger(JwtTokenDecoder::class.java)
+
     fun decodeExpiryTime(jwtToken: String): Instant {
         return try {
-            val payloadString = jwtToken.split("\\.")
+            val payloadString = jwtToken.split(".")
                 .let { segments -> segments[1].fromBase64()}
 
             val payload: JwtPayload = objectMapper.readObject(payloadString)
             Instant.ofEpochSecond(payload.expiryTime)
         } catch (e: JsonMappingException) {
+            log.warn("Error parsing expiry date from jwt token.")
             throw Exception("Error parsing expiry date from jwt token.", e)
         } catch (e: JsonParseException) {
+            log.warn("Invalid json found in jwt token.")
             throw Exception("Invalid json found in jwt token.", e)
+        } catch (e: Exception) {
+            log.warn("Exception thrown while parsing jwt expiry time.")
+            throw Exception("Exception thrown while parsing jwt expiry time.", e)
         }
     }
 }
