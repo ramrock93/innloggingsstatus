@@ -1,11 +1,10 @@
 package no.nav.personbruker.innloggingsstatus.pdl
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.url
+import io.ktor.client.request.*
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.personbruker.innloggingsstatus.common.apiKeyHeader
 import no.nav.personbruker.innloggingsstatus.common.bearerAuth
@@ -14,8 +13,6 @@ import no.nav.personbruker.innloggingsstatus.config.Environment
 import no.nav.personbruker.innloggingsstatus.config.JsonDeserialize.objectMapper
 import no.nav.personbruker.innloggingsstatus.health.SelfTest
 import no.nav.personbruker.innloggingsstatus.health.ServiceStatus
-import no.nav.personbruker.innloggingsstatus.pdl.health.LivenessStatus
-import no.nav.personbruker.innloggingsstatus.pdl.health.PdlLivenessResponse
 import no.nav.personbruker.innloggingsstatus.pdl.query.*
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -106,7 +103,7 @@ class PdlConsumer(private val client: HttpClient, environment: Environment): Sel
         return try {
             val response = getLivenessResponse()
             when (response.status) {
-                LivenessStatus.UP -> ServiceStatus.OK
+                HttpStatusCode.OK -> ServiceStatus.OK
                 else -> ServiceStatus.ERROR
             }
         } catch (e: Exception) {
@@ -114,9 +111,9 @@ class PdlConsumer(private val client: HttpClient, environment: Environment): Sel
         }
     }
 
-    private suspend fun getLivenessResponse(): PdlLivenessResponse {
-        return client.get {
-            url(URL("$endpoint/internal/health/liveness"))
+    private suspend fun getLivenessResponse(): HttpResponse {
+        return client.options {
+            url(URL("$endpoint/graphql"))
             apiKeyHeader(apiKey)
         }
     }
