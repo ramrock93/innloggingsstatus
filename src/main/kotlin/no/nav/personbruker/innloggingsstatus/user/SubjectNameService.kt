@@ -14,6 +14,7 @@ class SubjectNameService(private val pdlService: PdlService, private val cache: 
 
     private fun concatenateFullName(pdlnavn: PdlNavn): String {
         return listOfNotNull(pdlnavn.fornavn, pdlnavn.mellomnavn, pdlnavn.etternavn)
+            .filter { name -> name.isNotBlank() }
             .joinToString(" ")
     }
 
