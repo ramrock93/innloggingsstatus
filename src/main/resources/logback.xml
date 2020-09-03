@@ -16,4 +16,6 @@
         <appender-ref ref="stdout_json"/>
         <appender-ref ref="metrics"/>
     </root>
+
+    <logger name="no.nav.security.token.support.core.validation.JwtTokenValidationHandler" level="INFO" additivity="false"/>
 </configuration>
