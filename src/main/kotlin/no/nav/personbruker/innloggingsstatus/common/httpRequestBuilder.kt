@@ -10,8 +10,8 @@ fun HttpRequestBuilder.basicAuth(username: String, password: String) {
     header(HttpHeaders.Authorization, "Basic $encodedCredentials")
 }
 
-fun HttpRequestBuilder.bearerAuth(token: String) {
-    header(HttpHeaders.Authorization, "Bearer $token")
+fun HttpRequestBuilder.bearerHeader(token: String, headerKey: String = HttpHeaders.Authorization) {
+    header(headerKey, "Bearer $token")
 }
 
 fun HttpRequestBuilder.apiKeyHeader(apiKey: String) {

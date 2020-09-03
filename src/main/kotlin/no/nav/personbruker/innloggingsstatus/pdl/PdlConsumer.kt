@@ -7,7 +7,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.personbruker.innloggingsstatus.common.apiKeyHeader
-import no.nav.personbruker.innloggingsstatus.common.bearerAuth
+import no.nav.personbruker.innloggingsstatus.common.bearerHeader
 import no.nav.personbruker.innloggingsstatus.common.readObject
 import no.nav.personbruker.innloggingsstatus.config.Environment
 import no.nav.personbruker.innloggingsstatus.config.JsonDeserialize.objectMapper
@@ -46,9 +46,9 @@ class PdlConsumer(private val client: HttpClient, environment: Environment): Sel
                 url(URL("$endpoint/graphql"))
                 contentType(ContentType.Application.Json)
                 apiKeyHeader(apiKey)
-                bearerAuth(stsToken)
+                bearerHeader(stsToken)
+                bearerHeader(stsToken, headerKey = "Nav-Consumer-Token")
                 header("Nav-Consumer-Id", CONSUMER_ID)
-                header("Nav-Consumer-Token", stsToken)
                 header("Tema", GENERELL)
                 body = request
             }
