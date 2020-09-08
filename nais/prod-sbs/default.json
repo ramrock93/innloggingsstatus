@@ -5,6 +5,6 @@
   "vault_consumer_name": "innloggingsstatus",
   "ingresses": [
     "https://innloggingsstatus.prod-sbs.nais.io",
-    "https://innlogginsttstatus.nav.no"
+    "https://innloggingsstatus.nav.no"
   ]
 }
