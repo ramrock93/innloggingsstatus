@@ -4,7 +4,7 @@
   "vault_secrets_root": "prod",
   "vault_consumer_name": "innloggingsstatus",
   "ingresses": [
-    "https://innloggingsstatus.prod-sbs.nais.io",
-    "https://innloggingsstatus.nav.no"
+    "https://innloggingsstatus.prod-sbs.nais.io/person/innloggingsstatus",
+    "https://www.nav.no/person/innloggingsstatus"
   ]
 }
