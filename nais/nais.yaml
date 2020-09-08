@@ -28,9 +28,9 @@ spec:
   vault:
     enabled: true
     paths:
-      - kvPath: /kv/{{cluster}}/sbs/innloggingsstatus/{{namespace}}
+      - kvPath: /kv/{{vault_secrets_root}}/sbs/innloggingsstatus/{{namespace}}
         mountPath: /var/run/secrets/nais.io/vault
-      - kvPath: /serviceuser/data/{{environment}}/srvinnloggstatus
+      - kvPath: /serviceuser/data/{{vault_namespace}}/srvinnloggstatus
         mountPath: /secret/serviceuser
       - kvPath: /apikey/apigw/{{vault_namespace}}/pdl-api/{{vault_consumer_name}}
         mountPath: /secret/pdl_apiKey

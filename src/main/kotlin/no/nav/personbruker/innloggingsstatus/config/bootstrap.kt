@@ -3,8 +3,10 @@ package no.nav.personbruker.innloggingsstatus.config
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.application.Application
 import io.ktor.application.install
+import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
+import io.ktor.http.HttpHeaders
 import io.ktor.jackson.jackson
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
@@ -20,6 +22,18 @@ fun Application.mainModule() {
     install(DefaultHeaders)
 
     val applicationContext = ApplicationContext(this.environment.config)
+
+    val environment = applicationContext.environment
+
+    install(CORS) {
+        host(
+            host = environment.corsAllowedOrigins,
+            schemes = environment.corsAllowedSchemes,
+            subDomains = environment.corsAllowedSubdomains
+        )
+        allowCredentials = true
+        header(HttpHeaders.ContentType)
+    }
 
     install(ContentNegotiation) {
         jackson {

@@ -114,6 +114,7 @@ tasks {
         environment("SENSU_PORT", "")
         environment("STS_CACHE_ENABLED", "false")
         environment("STS_CACHE_EXPIRY_MARGIN_MINUTES", "5")
+        environment("CORS_ALLOWED_ORIGINS", "localhost:9002")
 
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath

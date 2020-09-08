@@ -17,10 +17,21 @@ data class Environment(
     val sensuHost: String = getEnvVar("SENSU_HOST"),
     val sensuPort: String = getEnvVar("SENSU_PORT"),
     val stsCacheEnabled: String  = getEnvVar("STS_CACHE_ENABLED"),
-    val stsCacheExpiryMarginMinutes: String  = getEnvVar("STS_CACHE_EXPIRY_MARGIN_MINUTES")
+    val stsCacheExpiryMarginMinutes: String  = getEnvVar("STS_CACHE_EXPIRY_MARGIN_MINUTES"),
+    val corsAllowedOrigins: String = getEnvVar("CORS_ALLOWED_ORIGINS"),
+    val corsAllowedSchemes: List<String> = getEnvVarAsList("CORS_ALLOWED_SCHEMES", listOf("https")),
+    val corsAllowedSubdomains: List<String> = getEnvVarAsList("CORS_ALLOWED_SUBDOMAINS", emptyList())
 )
 
 private fun getEnvVar(varName: String): String {
     return System.getenv(varName)
-            ?: throw IllegalArgumentException("Appen kan ikke starte uten at miljøvariabelen $varName er satt.")
+        ?: throw IllegalArgumentException("Appen kan ikke starte uten at miljøvariabelen $varName er satt.")
 }
+
+private fun getEnvVarAsList(varName: String, default: List<String>? = null): List<String> {
+    return System.getenv(varName)
+        ?.split(",")
+        ?: default
+        ?: throw IllegalArgumentException("Appen kan ikke starte uten at miljøvariabelen $varName er satt eller default er gitt.")
+}
+

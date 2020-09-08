@@ -1,8 +1,7 @@
 {
   "namespace": "q1",
   "vault_namespace": "dev",
-  "cluster": "preprod",
-  "environment": "dev",
+  "vault_secrets_root": "preprod",
   "vault_consumer_name": "innloggingsstatus_q1",
   "ingresses": [
     "https://innloggingsstatus.dev.nav.no",
