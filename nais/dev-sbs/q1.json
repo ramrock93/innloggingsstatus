@@ -4,7 +4,7 @@
   "vault_secrets_root": "preprod",
   "vault_consumer_name": "innloggingsstatus_q1",
   "ingresses": [
-    "https://innloggingsstatus.dev.nav.no",
-    "https://innloggingsstatus-q1.dev-sbs.nais.io"
+    "https://innloggingsstatus.dev.nav.no/innloggingsstatus",
+    "https://innloggingsstatus-q1.dev-sbs.nais.io/innloggingsstatus"
   ]
 }
