@@ -9,14 +9,14 @@ spec:
   image: {{version}}
   port: 8080
   liveness:
-    path: /innloggingsstatus/internal/isAlive
+    path: /internal/isAlive
     initialDelay: 5
   readiness:
-    path: /innloggingsstatus/internal/isReady
+    path: /internal/isReady
     initialDelay: 5
   prometheus:
     enabled: true
-    path: /innloggingsstatus/metrics
+    path: /metrics
   replicas:
     min: 2
     max: 4
