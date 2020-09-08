@@ -1,5 +1,8 @@
 package no.nav.personbruker.innloggingsstatus.auth
 
+import com.fasterxml.jackson.annotation.JsonInclude
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class UserInfo private constructor(
     val authenticated: Boolean,
     val name: String?,

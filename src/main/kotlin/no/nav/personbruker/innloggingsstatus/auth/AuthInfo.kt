@@ -35,11 +35,9 @@ data class AuthInfo (
 }
 
 private fun max(a: Int?, b: Int?): Int? {
-    return if (a == null) {
-        b
-    } else if (b == null) {
-        a
-    } else {
-        max(a, b)
+    return when {
+        a == null -> b
+        b == null -> a
+        else -> kotlin.math.max(a, b)
     }
 }
