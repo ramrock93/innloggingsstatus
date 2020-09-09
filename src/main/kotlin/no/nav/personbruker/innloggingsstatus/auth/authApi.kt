@@ -19,4 +19,14 @@ fun Route.authApi(authService: AuthTokenService) {
             call.respond(HttpStatusCode.InternalServerError)
         }
     }
+
+    get("/detail") {
+        try {
+            authService.getDetailedAuthInfo(call).let { authInfo ->
+                call.respond(HttpStatusCode.OK, authInfo)
+            }
+        } catch(exception: Exception) {
+            call.respond(HttpStatusCode.InternalServerError)
+        }
+    }
 }

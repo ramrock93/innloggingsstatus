@@ -1,9 +1,11 @@
 package no.nav.personbruker.innloggingsstatus.auth
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenInfo
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenInfo
 import java.time.LocalDateTime
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class AuthInfo (
     val oidcToken: OidcTokenInfo?,
     val openAMToken: OpenAMTokenInfo?

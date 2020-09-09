@@ -29,6 +29,15 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
         }
     }
 
+    suspend fun getDetailedAuthInfo(call: ApplicationCall): AuthInfo {
+        try {
+            return fetchAndParseAuthInfo(call)
+        } catch (e: Exception) {
+            log.warn("Feil ved henting av brukers token-status", e)
+            throw e
+        }
+    }
+
     private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
@@ -39,6 +48,13 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
         metricsCollector.recordAuthMetrics(authInfo, userInfo)
 
         userInfo
+    }
+
+    private suspend fun fetchAndParseAuthInfo(call: ApplicationCall): AuthInfo = coroutineScope {
+        val oidcToken = async { oidcTokenService.getOidcToken(call) }
+        val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
+
+        AuthInfo(oidcToken.await(), openAMToken.await())
     }
 
     private suspend fun getUserInfo(authInfo: AuthInfo): UserInfo {
