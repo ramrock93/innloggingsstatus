@@ -39,6 +39,7 @@ class OpenAMConsumer(
             val tokenResponse: OpenAMTokenResponse = objectMapper.readObject(json)
             OpenAMResponse.validResponse(tokenResponse)
         } catch (e: Exception) {
+            log.info("Klarte ikke lese openam token respons", e)
             parseJsonErrorResponse(json)
         }
     }
@@ -48,6 +49,7 @@ class OpenAMConsumer(
             val errorResponse: OpenAMErrorResponse = objectMapper.readObject(json)
             OpenAMResponse.errorResponse(errorResponse)
         } catch (e: Exception) {
+            log.info("Klarte ikke lese openam error respons", e)
             OpenAMResponse.errorResponse()
         }
     }
