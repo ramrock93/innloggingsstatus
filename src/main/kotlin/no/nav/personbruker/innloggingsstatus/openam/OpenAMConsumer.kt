@@ -56,7 +56,7 @@ class OpenAMConsumer(
         return try {
              val response: String = client.get {
                 url(URL("$endpoint/identity/json/attributes"))
-                parameter("subjectId", token)
+                parameter("subjectid", token)
                 parameter("attributenames", "uid")
                 parameter("attributenames", "SecurityLevel")
             }
