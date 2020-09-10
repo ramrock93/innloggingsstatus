@@ -2,20 +2,19 @@ package no.nav.personbruker.innloggingsstatus.user
 
 import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
-import no.nav.personbruker.innloggingsstatus.pdl.query.PdlNavn
 
-class SubjectNameService(private val pdlService: PdlService, private val cache: EvictingCache<String, PdlNavn>) {
+class SubjectNameService(private val pdlService: PdlService, private val cache: EvictingCache<String, String>) {
 
     suspend fun getSubjectName(subject: String): String {
-        return cache.getEntry(subject, pdlService::getSubjectName)?.let { pdlNavn ->
-            concatenateFullName(pdlNavn)
-        }?: ""
+        return cache.getEntry(subject, this::fetchNameFromPdlAndConcatenate)
+            ?: ""
     }
 
-    private fun concatenateFullName(pdlnavn: PdlNavn): String {
-        return listOfNotNull(pdlnavn.fornavn, pdlnavn.mellomnavn, pdlnavn.etternavn)
-            .filter { name -> name.isNotBlank() }
-            .joinToString(" ")
+    private suspend fun fetchNameFromPdlAndConcatenate(subject: String): String? {
+        return pdlService.getSubjectName(subject)
+            ?.let { pdlNavn -> listOf(pdlNavn.fornavn, pdlNavn.mellomnavn, pdlNavn.etternavn) }
+            ?.filter { navn -> !navn.isNullOrBlank() }
+            ?.joinToString(" ")
     }
 
 }

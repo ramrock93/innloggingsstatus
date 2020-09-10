@@ -34,6 +34,10 @@ data class AuthInfo (
     }
 
     val expiryTime: LocalDateTime? get() = oidcToken?.expiryTime
+
+    companion object {
+        fun unAuthenticated(): AuthInfo = AuthInfo(null, null)
+    }
 }
 
 private fun max(a: Int?, b: Int?): Int? {

@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OpenAMTokenResponse (
-    val token: Token,
-    val attributes: List<Attribute>
+    val token: OpenAMToken,
+    val attributes: List<OpenAMAttribute>
 )
 
-data class Token (
+data class OpenAMToken (
     val tokenId: String
 )
 
-data class Attribute (
+data class OpenAMAttribute (
     val name: String,
     val values: List<String>
 )

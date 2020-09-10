@@ -28,8 +28,8 @@ class OpenAMConsumer(
 
     override val externalServiceName: String get() = "OpenAm / Nav-esso"
 
-    suspend fun getOpenAMTokenAttributes(token: String): OpenAMResponse? {
-        return fetchOpenAmTokenAttributesJsonString(token)?.let {json ->
+    suspend fun getOpenAMTokenAttributes(token: String): OpenAMResponse {
+        return fetchOpenAmTokenAttributesJsonString(token).let {json ->
             parseJsonResponse(json)
         }
     }
@@ -39,7 +39,6 @@ class OpenAMConsumer(
             val tokenResponse: OpenAMTokenResponse = objectMapper.readObject(json)
             OpenAMResponse.validResponse(tokenResponse)
         } catch (e: Exception) {
-            log.info("Klarte ikke utlede tokeninfo fra openAM-response.", e)
             parseJsonErrorResponse(json)
         }
     }
@@ -49,24 +48,21 @@ class OpenAMConsumer(
             val errorResponse: OpenAMErrorResponse = objectMapper.readObject(json)
             OpenAMResponse.errorResponse(errorResponse)
         } catch (e: Exception) {
-            log.info("Klarte ikke utlede feilinfo fra openAM-response.", e)
+            log.warn("Klarte ikke utlede token eller feilinfo fra openAM-response.", e)
             OpenAMResponse.errorResponse()
         }
     }
 
-    private suspend fun fetchOpenAmTokenAttributesJsonString(token: String): String? {
+    private suspend fun fetchOpenAmTokenAttributesJsonString(token: String): String {
         return try {
-             val response: String = client.get {
+             client.get {
                 url(URL("$endpoint/identity/json/attributes"))
                 parameter("subjectid", token)
                 parameter("attributenames", "uid")
                 parameter("attributenames", "SecurityLevel")
             }
-
-            response
         } catch (e: Exception) {
-            log.warn("Feil ved henting av atributter for nav-esso token", e)
-            null
+            throw OpenAMException("Feil ved henting av attributter for nav-esso token", e)
         }
     }
 

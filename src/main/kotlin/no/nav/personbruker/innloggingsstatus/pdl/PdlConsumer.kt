@@ -53,8 +53,7 @@ class PdlConsumer(private val client: HttpClient, environment: Environment): Sel
                 body = request
             }
         } catch (e: Exception) {
-            log.warn("Feil ved kontakt mot PDL", e)
-            throw e
+            throw PdlException("Feil ved kontakt mot pdl-api", e)
         }
     }
 
@@ -73,8 +72,7 @@ class PdlConsumer(private val client: HttpClient, environment: Environment): Sel
             logErrorResponse(errorResponse)
             throwAppropriateException(errorResponse)
         } catch (e: Exception) {
-            log.warn("Feil ved deserialisering av svar fra pdl. Response-body lengde [${json.length}]", e)
-            throw e
+            throw PdlException("Feil ved deserialisering av svar fra pdl. Response-body lengde [${json.length}]", e)
         }
     }
 
@@ -84,7 +82,7 @@ class PdlConsumer(private val client: HttpClient, environment: Environment): Sel
         if (firstError == PDLErrorType.NOT_AUTHENTICATED) {
             throw PdlAuthenticationException("Fikk autentiseringsfeil mot PDL [$firstError]")
         } else {
-            throw Exception("Fikk feil fra pdl med type [$firstError]")
+            throw PdlException("Fikk feil fra pdl med type [$firstError]")
         }
     }
 

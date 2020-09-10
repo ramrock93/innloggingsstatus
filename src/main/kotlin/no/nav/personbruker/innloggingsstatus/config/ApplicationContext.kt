@@ -42,7 +42,7 @@ class ApplicationContext(config: ApplicationConfig) {
     val stsService = resolveStsService(stsConsumer, environment)
     val pdlService = PdlService(pdlConsumer, stsService)
 
-    val subjectNameCache = EvictingCache<String, PdlNavn>()
+    val subjectNameCache = EvictingCache<String, String>()
     val subjectNameService = SubjectNameService(pdlService, subjectNameCache)
 
     val metricsReporter = resolveMetricsReporter(environment)

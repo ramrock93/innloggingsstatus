@@ -32,8 +32,7 @@ class STSConsumer(private val client: HttpClient, environment: Environment): Sel
         return try {
             fetchStsToken().accessToken
         } catch (e: Exception) {
-            log.warn("Klarte ikke hente sts-token", e)
-            throw e
+            throw STSException("Feil ved kontakt mot sts-tjeneste", e)
         }
     }
 

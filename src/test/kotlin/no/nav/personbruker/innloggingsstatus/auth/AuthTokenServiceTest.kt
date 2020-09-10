@@ -168,4 +168,44 @@ internal class AuthTokenServiceTest {
         subjectInfo.securityLevel `should equal` "3"
     }
 
+    @Test
+    fun `should claim user is unauthenticated if oidc service throws error and openAM service is OK`() {
+        val subject2OpenAmTokenInfo = OpenAMTokenInfo(
+            subject = subject2,
+            authLevel = 4
+        )
+
+        coEvery { oidcTokenService.getOidcToken(call) } throws Exception()
+        coEvery { openAMTokenService.getOpenAMToken(call) } returns subject2OpenAmTokenInfo
+        coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
+        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+
+        val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
+
+        subjectInfo.authenticated `should equal` false
+        subjectInfo.name `should equal` null
+        subjectInfo.securityLevel `should equal` null
+    }
+
+    @Test
+    fun `should claim user is unauthenticated if openAM service throws error and oidc service is OK`() {
+        val subject1OidcTokenInfo = OidcTokenInfo(
+            subject = subject1,
+            authLevel = 3,
+            issueTime = LocalDateTime.now(),
+            expiryTime = LocalDateTime.now().plusDays(1)
+        )
+
+        coEvery { oidcTokenService.getOidcToken(call) } returns subject1OidcTokenInfo
+        coEvery { openAMTokenService.getOpenAMToken(call) } throws Exception()
+        coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
+        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+
+        val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
+
+        subjectInfo.authenticated `should equal` false
+        subjectInfo.name `should equal` null
+        subjectInfo.securityLevel `should equal` null
+    }
+
 }

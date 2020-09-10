@@ -11,12 +11,8 @@ import io.ktor.util.KtorExperimentalAPI
 fun Route.authApi(authService: AuthTokenService) {
 
     get("/auth") {
-        try {
-            authService.getAuthenticatedUserInfo(call).let { userInfo ->
-                call.respond(HttpStatusCode.OK, userInfo)
-            }
-        } catch(exception: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
+        authService.getAuthenticatedUserInfo(call).let { userInfo ->
+            call.respond(HttpStatusCode.OK, userInfo)
         }
     }
 

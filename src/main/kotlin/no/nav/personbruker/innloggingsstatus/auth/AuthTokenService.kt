@@ -21,21 +21,16 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     val log = LoggerFactory.getLogger(AuthTokenService::class.java)
 
     suspend fun getAuthenticatedUserInfo(call: ApplicationCall): UserInfo {
-        try {
-            return fetchAndParseAuthenticatedUserInfo(call)
+        return try {
+            fetchAndParseAuthenticatedUserInfo(call)
         } catch (e: Exception) {
             log.warn("Feil ved henting av brukers innloggingsinfo", e)
-            throw e
+            UserInfo.unAuthenticated()
         }
     }
 
     suspend fun getDetailedAuthInfo(call: ApplicationCall): AuthInfo {
-        try {
-            return fetchAndParseAuthInfo(call)
-        } catch (e: Exception) {
-            log.warn("Feil ved henting av brukers token-status", e)
-            throw e
-        }
+        return fetchAndParseAuthInfo(call)
     }
 
     private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
