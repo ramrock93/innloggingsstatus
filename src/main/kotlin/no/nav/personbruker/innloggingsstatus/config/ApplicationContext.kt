@@ -8,6 +8,7 @@ import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.SensuConfig
 import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
+import no.nav.personbruker.dittnav.common.util.cache.EvictingCacheConfig
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
@@ -42,7 +43,7 @@ class ApplicationContext(config: ApplicationConfig) {
     val stsService = resolveStsService(stsConsumer, environment)
     val pdlService = PdlService(pdlConsumer, stsService)
 
-    val subjectNameCache = EvictingCache<String, String>()
+    val subjectNameCache = setupSubjectNameCache(environment)
     val subjectNameService = SubjectNameService(pdlService, subjectNameCache)
 
     val metricsReporter = resolveMetricsReporter(environment)
@@ -78,4 +79,16 @@ private fun resolveStsService(stsConsumer: STSConsumer, environment: Environment
     } else {
         NonCachingStsService(stsConsumer)
     }
+}
+
+private fun setupSubjectNameCache(environment: Environment): EvictingCache<String, String> {
+    val cacheThreshold = environment.subjectNameCacheThreshold.toInt()
+    val cacheExpiryMinutes = environment.subjectNameCacheExpiryMinutes.toLong()
+
+    val evictingCacheConfig = EvictingCacheConfig(
+        evictionThreshold = cacheThreshold,
+        entryLifetimeMinutes = cacheExpiryMinutes
+    )
+
+    return EvictingCache(evictingCacheConfig)
 }
