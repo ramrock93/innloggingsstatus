@@ -29,7 +29,7 @@ fun Routing.healthApi(selfTests: List<SelfTest>, collectorRegistry: CollectorReg
         call.buildSelftestPage(selfTests)
     }
 
-    get("/metrics") {
+    get("/internal/metrics") {
         val names = call.request.queryParameters.getAll("name[]")?.toSet() ?: emptySet()
         call.respondTextWriter(ContentType.parse(TextFormat.CONTENT_TYPE_004)) {
             TextFormat.write004(this, collectorRegistry.filteredMetricFamilySamples(names))

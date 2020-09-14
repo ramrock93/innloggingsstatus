@@ -38,9 +38,11 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
 
         val authInfo = AuthInfo(oidcToken.await(), openAMToken.await())
+
         val userInfo = getUserInfo(authInfo)
 
         metricsCollector.recordAuthMetrics(authInfo, userInfo)
+
 
         userInfo
     }
@@ -53,7 +55,7 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     }
 
     private suspend fun getUserInfo(authInfo: AuthInfo): UserInfo {
-        return if (authInfo.subject != null) {
+        return if (authInfo.subject != null && authInfo.stable) {
             val subjectName = subjectNameService.getSubjectName(authInfo.subject!!)
             UserInfo.authenticated(subjectName, authInfo.authLevel!!)
         } else {

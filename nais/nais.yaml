@@ -16,7 +16,7 @@ spec:
     initialDelay: 5
   prometheus:
     enabled: true
-    path: /person/innloggingsstatus/metrics
+    path: /person/innloggingsstatus/internal/metrics
   replicas:
     min: 2
     max: 4

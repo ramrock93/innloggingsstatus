@@ -142,7 +142,7 @@ internal class AuthTokenServiceTest {
     }
 
     @Test
-    fun `should always defer to oidc token if we find valid authentication for two different users`() {
+    fun `should consider user to be unauthenticated if we find valid authentication for two different users`() {
         val subject1OidcTokenInfo = OidcTokenInfo(
             subject = subject1,
             authLevel = 3,
@@ -163,9 +163,9 @@ internal class AuthTokenServiceTest {
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
-        subjectInfo.authenticated `should equal` true
-        subjectInfo.name `should equal` subject1Name
-        subjectInfo.securityLevel `should equal` "3"
+        subjectInfo.authenticated `should equal` false
+        subjectInfo.name `should equal` null
+        subjectInfo.securityLevel `should equal` null
     }
 
     @Test

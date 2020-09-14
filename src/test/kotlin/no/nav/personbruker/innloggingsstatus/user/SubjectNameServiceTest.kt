@@ -23,7 +23,7 @@ internal class SubjectNameServiceTest {
     val subjectNameService = SubjectNameService(pdlService, nameCache)
 
     @Test
-    fun `should return empty string if name was found`() {
+    fun `should return empty string if name was not found`() {
 
         coEvery { pdlService.getSubjectName(subject) } returns null
 

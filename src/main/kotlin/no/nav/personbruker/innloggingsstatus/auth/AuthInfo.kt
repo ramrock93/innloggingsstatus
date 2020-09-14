@@ -10,17 +10,17 @@ data class AuthInfo (
     val oidcToken: OidcTokenInfo?,
     val openAMToken: OpenAMTokenInfo?
 ) {
-    val authenticated: Boolean get() = oidcToken != null || openAMToken != null
+    val authenticated: Boolean get() = oidcToken != null || openAMToken != null && stable
 
     val stable: Boolean get() = openAMToken == null || oidcToken == null || oidcToken.subject == openAMToken.subject
 
     val subject: String? get() {
-        // If we find auth info for different users, let oidc tokens take precedence
+        // Return null if we find auth info for different users
         return if (stable) {
             oidcToken?.subject
                 ?: openAMToken?.subject
         } else {
-            oidcToken?.subject
+            null
         }
     }
 
@@ -29,7 +29,7 @@ data class AuthInfo (
         return if (stable) {
             max(oidcToken?.authLevel, openAMToken?.authLevel)
         } else {
-            oidcToken?.authLevel
+            null
         }
     }
 

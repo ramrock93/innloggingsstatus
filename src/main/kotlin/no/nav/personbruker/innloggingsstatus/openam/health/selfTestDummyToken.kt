@@ -1,3 +1,3 @@
 package no.nav.personbruker.innloggingsstatus.openam.health
 
-const val DUMMY_SUBJECT_TOKEN = "no.nav.apiapp.selftest.impl.OpenAMHelsesjekk"
+const val DUMMY_SUBJECT_TOKEN = "self_test_dummy_token"
