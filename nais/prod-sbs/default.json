@@ -1,0 +1,10 @@
+{
+  "namespace": "default",
+  "vault_namespace": "prod",
+  "vault_secrets_root": "prod",
+  "vault_consumer_name": "innloggingsstatus",
+  "ingresses": [
+    "https://innloggingsstatus.prod-sbs.nais.io/person/innloggingsstatus",
+    "https://www.nav.no/person/innloggingsstatus"
+  ]
+}
