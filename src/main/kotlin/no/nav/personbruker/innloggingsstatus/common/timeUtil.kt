@@ -7,4 +7,4 @@ val LocalDateTime.epochSecondUtc get() = toEpochSecond(ZoneOffset.UTC)
 
 fun Date.toUtcDateTime() = LocalDateTime.ofInstant(this.toInstant(), ZoneId.of("UTC"))
 
-fun getSecondsSinceUtcEpoch() = LocalDateTime.now().epochSecondUtc
+fun getSecondsSinceUtcEpoch() = Instant.now().epochSecond
