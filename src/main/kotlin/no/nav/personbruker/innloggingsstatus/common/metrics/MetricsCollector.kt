@@ -30,7 +30,8 @@ class MetricsCollector(private val metricsReporter: MetricsReporter) {
         val fieldMap = listOf(
             "foundSubjectName" to metrics.foundSubjectName,
             "operatingAuthLevel" to metrics.operatingAuthLevel,
-            "oidcAuthLevel" to metrics.oidcMetrics.authenticated,
+            "authenticatedWithOidc" to metrics.oidcMetrics.authenticated,
+            "oidcAuthLevel" to metrics.oidcMetrics.authLevel,
             "oidcTokenAgeSeconds" to metrics.oidcMetrics.tokenAgeSeconds,
             "oidcTokenTimeToExpirySeconds" to metrics.oidcMetrics.tokenTimeToExpirySeconds,
             "authenticatedWithOpenAM" to metrics.openAMMetrics.authenticated,
