@@ -1,4 +1,3 @@
-val jacksonKotlinModuleVersion = "2.9.9"
 val dittnavLibVersion = "0.3.0"
 
 
@@ -97,6 +96,7 @@ tasks {
         environment("STS_CACHE_ENABLED", "false")
         environment("STS_CACHE_EXPIRY_MARGIN_MINUTES", "5")
         environment("CORS_ALLOWED_ORIGINS", "localhost:9002")
+        environment("OIDC_CLAIM_CONTAINING_THE_IDENTITY", "pid")
 
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath

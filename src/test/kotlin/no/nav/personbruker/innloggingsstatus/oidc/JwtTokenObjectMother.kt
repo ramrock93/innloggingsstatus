@@ -7,17 +7,17 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 object JwtTokenObjectMother {
-    fun createJwtToken(subject: String, level: Int, issueTime: LocalDateTime, expiry: LocalDateTime) =
-        plainSubjectToken(subject, level, issueTime, expiry)
+    fun createJwtToken(subject: String, level: Int, issueTime: LocalDateTime, expiry: LocalDateTime, identityClaim: String) =
+        plainSubjectToken(subject, level, issueTime, expiry, identityClaim)
             .serialize()
             .let { JwtToken(it) }
 
-    private fun tokenClaims(sub: String, acr: String, iat: Long, exp: Long) = JWTClaimsSet.Builder()
+    private fun tokenClaims(subject: String, acr: String, iat: Long, exp: Long, identityClaim: String) = JWTClaimsSet.Builder()
         .claim("exp", exp)
         .claim("nbf", 1577876400)
         .claim("ver", "1.0")
         .claim("iss", "http://dummy.com")
-        .claim("sub", sub)
+        .claim(identityClaim, subject)
         .claim("aud", "audience")
         .claim("acr", acr)
         .claim("nonce", "nonce")
@@ -26,13 +26,14 @@ object JwtTokenObjectMother {
         .claim("jti", "dummy-user")
         .build()
 
-    private fun plainSubjectToken(subject: String, level: Int,  issueTime: LocalDateTime, expiry: LocalDateTime) =
+    private fun plainSubjectToken(subject: String, level: Int,  issueTime: LocalDateTime, expiry: LocalDateTime, identityClaim: String) =
         PlainJWT(
             tokenClaims(
-                sub = subject,
+                subject = subject,
                 acr = "Level$level",
                 iat = issueTime.toEpochSecond(ZoneOffset.UTC),
-                exp = expiry.toEpochSecond(ZoneOffset.UTC)
+                exp = expiry.toEpochSecond(ZoneOffset.UTC),
+                identityClaim = identityClaim
             )
         )
 }

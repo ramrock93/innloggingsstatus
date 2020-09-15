@@ -11,6 +11,7 @@ import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
 import no.nav.personbruker.dittnav.common.util.cache.EvictingCacheConfig
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
+import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenInfoFactory
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenValidator
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMConsumer
@@ -33,7 +34,7 @@ class ApplicationContext(config: ApplicationConfig) {
     val httpClient = HttpClientBuilder.build()
 
     val oidcTokenValidator = OidcTokenValidator(config)
-    val oidcValidationService = OidcTokenService(oidcTokenValidator)
+    val oidcValidationService = OidcTokenService(oidcTokenValidator, environment)
 
     val openAMConsumer = OpenAMConsumer(httpClient, environment)
     val openAMValidationService = OpenAMTokenService(openAMConsumer)

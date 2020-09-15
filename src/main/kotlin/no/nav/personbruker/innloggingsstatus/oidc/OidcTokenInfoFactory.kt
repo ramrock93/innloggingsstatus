@@ -7,9 +7,9 @@ import java.util.*
 
 object OidcTokenInfoFactory {
 
-    fun mapOidcTokenInfo(token: JwtToken): OidcTokenInfo {
+    fun mapOidcTokenInfo(token: JwtToken, identityClaim: String): OidcTokenInfo {
 
-        val ident: String = getIdent(token)
+        val ident = getIdent(token, identityClaim)
         val authLevel = extractAuthLevel(token)
         val issueTime = getTokenIssueLocalDateTime(token)
         val expiryTime = getTokenExpiryLocalDateTime(token)
@@ -38,13 +38,12 @@ object OidcTokenInfoFactory {
             .toUtcDateTime()
     }
 
-    private fun getIdent(token: JwtToken): String {
+    private fun getIdent(token: JwtToken, identityClaim: String): String {
         val claims = token.jwtTokenClaims
 
         return when {
-            claims.allClaims.containsKey("pid") -> claims.getStringClaim("pid")
-            claims.allClaims.containsKey("sub") -> claims.getStringClaim("sub")
-            else -> throw RuntimeException("Fant ikke et token-claim med ident i 'pid' eller 'sub'.")
+            claims.allClaims.containsKey(identityClaim) -> claims.getStringClaim(identityClaim)
+            else -> throw RuntimeException("Fant ikke et token-claim med ident i $identityClaim")
         }
     }
 
