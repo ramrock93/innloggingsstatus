@@ -7,7 +7,7 @@ class SubjectNameService(private val pdlService: PdlService, private val cache: 
 
     suspend fun getSubjectName(subject: String): String {
         return cache.getEntry(subject, this::fetchNameFromPdlAndConcatenate)
-            ?: ""
+            ?: subject
     }
 
     private suspend fun fetchNameFromPdlAndConcatenate(subject: String): String? {
