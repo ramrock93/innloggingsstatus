@@ -2,7 +2,7 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: innloggingsstatus
-  namespace: {{namespace}}
+  namespace: personbruker
   labels:
     team: personbruker
 spec:
@@ -28,7 +28,7 @@ spec:
   vault:
     enabled: true
     paths:
-      - kvPath: /kv/{{vault_secrets_root}}/sbs/innloggingsstatus/{{namespace}}
+      - kvPath: /kv/{{vault_secrets_root}}/sbs/innloggingsstatus/personbruker
         mountPath: /var/run/secrets/nais.io/vault
       - kvPath: /serviceuser/data/{{vault_namespace}}/srvinnloggstatus
         mountPath: /secret/serviceuser

@@ -1,11 +1,8 @@
-val dittnavLibVersion = "0.3.0"
-
-
 plugins {
-    val kotlinVersion = "1.3.71"
+    kotlin("jvm") version Kotlin.version
+    kotlin("plugin.allopen") version Kotlin.version
 
-    kotlin("jvm").version(kotlinVersion)
-    kotlin("plugin.allopen").version(kotlinVersion)
+    id(Shadow.pluginId) version Shadow.version
 
     application
 }
@@ -17,38 +14,38 @@ repositories {
 }
 
 dependencies {
+    implementation(DittNAV.Common.logging)
+    implementation(DittNAV.Common.utils)
+    implementation(DittNAV.Common.metrics)
+    implementation(Jackson.dataTypeJsr310)
+    implementation(Jackson.moduleKotlin)
     implementation(Kotlinx.coroutines)
+    implementation(Kotlinx.htmlJvm)
+    implementation(Ktor.clientApache)
+    implementation(Ktor.clientJackson)
+    implementation(Ktor.clientJson)
+    implementation(Ktor.clientLogging)
+    implementation(Ktor.clientLoggingJvm)
+    implementation(Ktor.clientSerializationJvm)
+    implementation(Ktor.htmlBuilder)
+    implementation(Ktor.jackson)
+    implementation(Ktor.serverNetty)
+    implementation(Logback.classic)
+    implementation(Logstash.logbackEncoder)
     implementation(NAV.tokenValidatorKtor)
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
-    implementation(Ktor.serverNetty)
-    implementation(Ktor.clientApache)
-    implementation(Ktor.clientJson)
-    implementation(Ktor.clientSerializationJvm)
-    implementation(Ktor.jackson)
-    implementation(Ktor.clientJackson)
-    implementation(Ktor.htmlBuilder)
-    implementation(Ktor.clientLogging)
-    implementation(Ktor.clientLoggingJvm)
-    implementation(Logback.classic)
-    implementation(Logstash.logbackEncoder)
-    implementation(Jackson.dataTypeJsr310)
-    implementation(Jackson.moduleKotlin)
-    implementation(Kotlinx.htmlJvm)
-    implementation("com.github.navikt.dittnav-common-lib:dittnav-common-logging:$dittnavLibVersion")
-    implementation("com.github.navikt.dittnav-common-lib:dittnav-common-utils:$dittnavLibVersion")
-    implementation("com.github.navikt.dittnav-common-lib:dittnav-common-metrics:$dittnavLibVersion")
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
+    testImplementation(Kluent.kluent)
     testImplementation(Ktor.clientMock)
     testImplementation(Ktor.clientMockJvm)
-    testImplementation(Kluent.kluent)
     testImplementation(Mockk.mockk)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "13"
+    kotlinOptions.jvmTarget = "11"
 }
 
 application {
@@ -56,20 +53,6 @@ application {
 }
 
 tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
-    withType<Jar> {
-        manifest {
-            attributes["Main-Class"] = application.mainClassName
-        }
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
-    }
 
     withType<Test> {
         useJUnitPlatform()
@@ -102,3 +85,5 @@ tasks {
         classpath = sourceSets["main"].runtimeClasspath
     }
 }
+
+apply(plugin = Shadow.pluginId)
