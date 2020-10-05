@@ -6,6 +6,8 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
+import no.nav.personbruker.innloggingsstatus.cache.MockedEvictingCacheFactory
 import org.amshove.kluent.`should equal`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -20,7 +22,8 @@ internal class OpenAMTokenServiceTest {
     private val authLevel = 4
     private val essoToken = "token"
 
-    private val openAMTokenService = OpenAMTokenService(openAMConsumer)
+    private val tokenCache: EvictingCache<String, OpenAMTokenInfo> = MockedEvictingCacheFactory.createShallowCache()
+    private val openAMTokenService = OpenAMTokenService(openAMConsumer, tokenCache)
 
     @AfterEach
     fun cleanUp() {

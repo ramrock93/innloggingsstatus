@@ -2,9 +2,11 @@ package no.nav.personbruker.innloggingsstatus.openam
 
 import io.ktor.application.ApplicationCall
 import io.ktor.request.ApplicationRequest
+import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
 import org.slf4j.LoggerFactory
 
-class OpenAMTokenService(val openAMConsumer: OpenAMConsumer) {
+class OpenAMTokenService(private val openAMConsumer: OpenAMConsumer,
+                         private val tokenCache: EvictingCache<String, OpenAMTokenInfo>) {
 
     private val NAV_ESSO_COOKIE = "nav-esso"
 
@@ -12,8 +14,12 @@ class OpenAMTokenService(val openAMConsumer: OpenAMConsumer) {
 
     suspend fun getOpenAMToken(call: ApplicationCall): OpenAMTokenInfo? {
         return call.request.navEssoToken?.let { essoToken ->
-            fetchTokenAttributes(essoToken)
-        }?.takeIf { response ->
+            tokenCache.getEntry(essoToken, this::fetchAndMapTokenAttributes)
+        }
+    }
+
+    private suspend fun fetchAndMapTokenAttributes(essoToken: String): OpenAMTokenInfo? {
+        return fetchTokenAttributes(essoToken).takeIf { response ->
             response.isValid()
         }?.let { tokenResponse ->
             OpenAMTokenInfoFactory.mapOpenAMTokenInfo(tokenResponse)
