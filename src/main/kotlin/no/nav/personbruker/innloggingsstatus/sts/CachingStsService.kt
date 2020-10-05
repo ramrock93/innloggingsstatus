@@ -11,7 +11,7 @@ class CachingStsService(val stsTokenCache: StsTokenCache): StsService {
         return stsTokenCache.getStsToken()
     }
 
-    override fun invalidateToken() {
+    override suspend fun invalidateToken() {
         log.info("Invaliderer cachet sts-token.")
         stsTokenCache.invalidateToken()
     }

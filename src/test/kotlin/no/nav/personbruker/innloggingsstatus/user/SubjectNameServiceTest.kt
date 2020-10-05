@@ -2,9 +2,9 @@ package no.nav.personbruker.innloggingsstatus.user
 
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.slot
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
+import no.nav.personbruker.innloggingsstatus.cache.MockedEvictingCacheFactory
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
 import no.nav.personbruker.innloggingsstatus.pdl.query.PdlNavn
 import org.amshove.kluent.`should equal`
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 internal class SubjectNameServiceTest {
 
-    val nameCache = createMockedCache()
+    val nameCache: EvictingCache<String, String> = MockedEvictingCacheFactory.createShallowCache()
     val pdlService: PdlService = mockk()
 
     val subject = "123465"
@@ -63,19 +63,6 @@ internal class SubjectNameServiceTest {
         val result = runBlocking { subjectNameService.getSubjectName(subject) }
 
         result `should equal` "$fornavn $etternavn"
-    }
-
-    private fun createMockedCache(): EvictingCache<String, String> {
-        val subject = slot<String>()
-        val fetcher = slot<suspend (String)->String?>()
-
-        val mockedCache: EvictingCache<String, String> = mockk()
-
-        coEvery { mockedCache.getEntry(capture(subject), capture(fetcher)) } coAnswers {
-            fetcher.captured(subject.captured)
-        }
-
-        return mockedCache
     }
 
 }

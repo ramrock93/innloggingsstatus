@@ -17,13 +17,17 @@ data class Environment(
     val namespace: String = getEnvVar("NAIS_NAMESPACE"),
     val sensuHost: String = getEnvVar("SENSU_HOST"),
     val sensuPort: String = getEnvVar("SENSU_PORT"),
+    val sensuBatchingEnabled: String = getEnvVar("SENSU_BATCHING_ENABLED", "true"),
+    val sensuBatchesPerSecond: String = getEnvVar("SENSU_BATCHING_ENABLED", "3"),
     val stsCacheEnabled: String  = getEnvVar("STS_CACHE_ENABLED"),
     val stsCacheExpiryMarginMinutes: String  = getEnvVar("STS_CACHE_EXPIRY_MARGIN_MINUTES"),
     val corsAllowedOrigins: String = getEnvVar("CORS_ALLOWED_ORIGINS"),
     val corsAllowedSchemes: List<String> = getEnvVarAsList("CORS_ALLOWED_SCHEMES", listOf("https")),
     val corsAllowedSubdomains: List<String> = getEnvVarAsList("CORS_ALLOWED_SUBDOMAINS", emptyList()),
     val subjectNameCacheThreshold: String = getEnvVar("SUBJECT_NAME_CACHE_THRESHOLD", "4096"),
-    val subjectNameCacheExpiryMinutes: String = getEnvVar("SUBJECT_NAME_CACHE_EXPIRY_MINUTES", "30")
+    val subjectNameCacheExpiryMinutes: String = getEnvVar("SUBJECT_NAME_CACHE_EXPIRY_MINUTES", "30"),
+    val openAmTokenInfoCacheThreshold: String = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_THRESHOLD", "1024"),
+    val openAmTokenInfoCacheExpiryMinutes: String = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", "1")
 )
 
 private fun getEnvVar(varName: String, default: String? = null): String {

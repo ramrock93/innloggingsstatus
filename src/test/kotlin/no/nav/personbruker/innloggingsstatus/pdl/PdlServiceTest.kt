@@ -1,8 +1,8 @@
 package no.nav.personbruker.innloggingsstatus.pdl
 
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.innloggingsstatus.sts.STSException
 import no.nav.personbruker.innloggingsstatus.sts.StsService
@@ -41,7 +41,7 @@ internal class PdlServiceTest {
         val response = runBlocking { pdlService.getSubjectName(ident) }
 
         response `should equal` null
-        verify(exactly = 1) { stsService.invalidateToken() }
+        coVerify(exactly = 1) { stsService.invalidateToken() }
     }
 
     @Test
@@ -52,7 +52,7 @@ internal class PdlServiceTest {
         val response = runBlocking { pdlService.getSubjectName(ident) }
 
         response `should equal` null
-        verify(exactly = 0) { stsService.invalidateToken() }
+        coVerify(exactly = 0) { stsService.invalidateToken() }
     }
 
     @Test

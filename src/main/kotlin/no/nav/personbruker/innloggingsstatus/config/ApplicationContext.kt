@@ -1,6 +1,5 @@
 package no.nav.personbruker.innloggingsstatus.config
 
-import io.ktor.client.HttpClient
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
@@ -11,14 +10,13 @@ import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
 import no.nav.personbruker.dittnav.common.util.cache.EvictingCacheConfig
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
-import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenInfoFactory
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenValidator
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMConsumer
+import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenInfo
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
 import no.nav.personbruker.innloggingsstatus.pdl.PdlConsumer
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
-import no.nav.personbruker.innloggingsstatus.pdl.query.PdlNavn
 import no.nav.personbruker.innloggingsstatus.sts.CachingStsService
 import no.nav.personbruker.innloggingsstatus.sts.NonCachingStsService
 import no.nav.personbruker.innloggingsstatus.sts.STSConsumer
@@ -37,7 +35,8 @@ class ApplicationContext(config: ApplicationConfig) {
     val oidcValidationService = OidcTokenService(oidcTokenValidator, environment)
 
     val openAMConsumer = OpenAMConsumer(httpClient, environment)
-    val openAMValidationService = OpenAMTokenService(openAMConsumer)
+    val openAmTokenInfoCache = setupOpenAMTokenInfoCache(environment)
+    val openAMValidationService = OpenAMTokenService(openAMConsumer, openAmTokenInfoCache)
 
     val stsConsumer = STSConsumer(httpClient, environment)
     val pdlConsumer = PdlConsumer(httpClient, environment)
@@ -65,7 +64,9 @@ private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
             hostPort = environment.sensuPort.toInt(),
             clusterName = environment.clusterName,
             namespace = environment.namespace,
-            eventsTopLevelName = "personbruker-innloggingsstatus"
+            eventsTopLevelName = "personbruker-innloggingsstatus",
+            enableEventBatching = environment.sensuBatchingEnabled.toBoolean(),
+            eventBatchesPerSecond = environment.sensuBatchesPerSecond.toInt()
         )
 
         InfluxMetricsReporter(sensuConfig)
@@ -85,6 +86,18 @@ private fun resolveStsService(stsConsumer: STSConsumer, environment: Environment
 private fun setupSubjectNameCache(environment: Environment): EvictingCache<String, String> {
     val cacheThreshold = environment.subjectNameCacheThreshold.toInt()
     val cacheExpiryMinutes = environment.subjectNameCacheExpiryMinutes.toLong()
+
+    val evictingCacheConfig = EvictingCacheConfig(
+        evictionThreshold = cacheThreshold,
+        entryLifetimeMinutes = cacheExpiryMinutes
+    )
+
+    return EvictingCache(evictingCacheConfig)
+}
+
+private fun setupOpenAMTokenInfoCache(environment: Environment): EvictingCache<String, OpenAMTokenInfo> {
+    val cacheThreshold = environment.openAmTokenInfoCacheThreshold.toInt()
+    val cacheExpiryMinutes = environment.openAmTokenInfoCacheExpiryMinutes.toLong()
 
     val evictingCacheConfig = EvictingCacheConfig(
         evictionThreshold = cacheThreshold,

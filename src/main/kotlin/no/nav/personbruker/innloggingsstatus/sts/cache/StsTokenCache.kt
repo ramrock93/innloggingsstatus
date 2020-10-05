@@ -1,35 +1,33 @@
 package no.nav.personbruker.innloggingsstatus.sts.cache
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import no.nav.personbruker.innloggingsstatus.config.Environment
 import no.nav.personbruker.innloggingsstatus.sts.STSConsumer
-import no.nav.personbruker.innloggingsstatus.sts.StsService
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.read
-import kotlin.concurrent.write
 
-class StsTokenCache (private val stsConsumer: STSConsumer, environment: Environment): StsService {
+class StsTokenCache (private val stsConsumer: STSConsumer, environment: Environment) {
 
-    private val lock = ReentrantReadWriteLock()
+    private val mutex = Mutex()
     private val log = LoggerFactory.getLogger(StsTokenCache::class.java)
 
     private val tokenSlot = TokenSlot(environment.stsCacheExpiryMarginMinutes.toLong())
 
-    override suspend fun getStsToken(): String {
+    suspend fun getStsToken(): String {
         return getValidTokenOrNull()
             ?: getRenewedToken()
     }
 
-    override fun invalidateToken() {
-        lock.write {
+    suspend fun invalidateToken() {
+        mutex.withLock {
             tokenSlot.clear()
         }
     }
 
-    private fun getValidTokenOrNull(): String? {
-        return lock.read {
+    private suspend fun getValidTokenOrNull(): String? {
+        return mutex.withLock {
             if (tokenSlot.holdsValidToken()) {
                 tokenSlot.get()
             } else {
@@ -39,7 +37,7 @@ class StsTokenCache (private val stsConsumer: STSConsumer, environment: Environm
     }
 
     private suspend fun getRenewedToken(): String {
-        return lock.write {
+        return mutex.withLock {
             if (tokenSlot.holdsValidToken()) {
                 tokenSlot.get()
             } else {
