@@ -19,7 +19,7 @@ jobs:
           java-version: 1.13
 
       - name: Finn cache-variabler
-        uses: navikt/pb-common-gh-actions/cache-prep@v2
+        uses: navikt/pb-common-gh-actions/cache-prep@var_test
 
       - name: Sett opp cache
         uses: actions/cache@v2
