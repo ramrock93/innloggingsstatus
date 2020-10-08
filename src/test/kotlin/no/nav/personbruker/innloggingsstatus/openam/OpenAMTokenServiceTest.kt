@@ -1,13 +1,8 @@
 package no.nav.personbruker.innloggingsstatus.openam
 
 import io.ktor.application.ApplicationCall
-import io.mockk.clearMocks
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
-import no.nav.personbruker.innloggingsstatus.cache.MockedEvictingCacheFactory
 import org.amshove.kluent.`should equal`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -16,50 +11,38 @@ import org.junit.jupiter.api.Test
 internal class OpenAMTokenServiceTest {
 
     private val call: ApplicationCall = mockk()
-    private val openAMConsumer: OpenAMConsumer = mockk()
 
     private val subject = "123456"
     private val authLevel = 4
     private val essoToken = "token"
 
-    private val tokenCache: EvictingCache<String, OpenAMTokenInfo> = MockedEvictingCacheFactory.createShallowCache()
-    private val openAMTokenService = OpenAMTokenService(openAMConsumer, tokenCache)
+    private val tokenProvider: OpenAMTokenInfoProvider = mockk()
+    private val openAMTokenService = OpenAMTokenService(tokenProvider)
 
     @AfterEach
     fun cleanUp() {
-        clearMocks(openAMConsumer, call)
+        clearMocks(call)
     }
 
     @Test
-    fun `should return no token info if nav-esso cookie is missing`() {
+    fun `should not attempt to fetch token info if nav-esso cookie is missing`() {
         every { call.request.cookies[any()] } returns null
 
         val response = runBlocking { openAMTokenService.getOpenAMToken(call) }
 
         response `should equal` null
+
+        coVerify(exactly = 0) { tokenProvider.getTokenInfo(any()) }
     }
 
     @Test
-    fun `should query for token info if nav-esso cookie is found and map response correctly`() {
-        val tokenResponse = OpenAMTokenResponseObjectMother.createOpenAMTokenResponse(essoToken, subject, authLevel)
-
+    fun `should query for token info if nav-esso cookie is found`() {
         every { call.request.cookies["nav-esso"] } returns essoToken
-        coEvery { openAMConsumer.getOpenAMTokenAttributes(essoToken) } returns tokenResponse
+        coEvery { tokenProvider.getTokenInfo(essoToken) } returns OpenAMTokenInfo(subject, authLevel)
 
         val response = runBlocking { openAMTokenService.getOpenAMToken(call) }
 
         response?.authLevel `should equal` authLevel
         response?.subject `should equal` subject
     }
-
-    @Test
-    fun `should query for token info if nav-esso cookie is found and return null if we received an error response`() {
-        every { call.request.cookies["nav-esso"] } returns essoToken
-        coEvery { openAMConsumer.getOpenAMTokenAttributes(essoToken) } returns OpenAMResponse.errorResponse()
-
-        val response = runBlocking { openAMTokenService.getOpenAMToken(call) }
-
-        response `should equal` null
-    }
-
 }

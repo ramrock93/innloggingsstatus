@@ -12,9 +12,7 @@ import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenValidator
-import no.nav.personbruker.innloggingsstatus.openam.OpenAMConsumer
-import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenInfo
-import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
+import no.nav.personbruker.innloggingsstatus.openam.*
 import no.nav.personbruker.innloggingsstatus.pdl.PdlConsumer
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
 import no.nav.personbruker.innloggingsstatus.sts.CachingStsService
@@ -35,8 +33,8 @@ class ApplicationContext(config: ApplicationConfig) {
     val oidcValidationService = OidcTokenService(oidcTokenValidator, environment)
 
     val openAMConsumer = OpenAMConsumer(httpClient, environment)
-    val openAmTokenInfoCache = setupOpenAMTokenInfoCache(environment)
-    val openAMValidationService = OpenAMTokenService(openAMConsumer, openAmTokenInfoCache)
+    val openAMTokenInfoProvider = setupOpenAmTokenInfoProvider(openAMConsumer, environment)
+    val openAMValidationService = OpenAMTokenService(openAMTokenInfoProvider)
 
     val stsConsumer = STSConsumer(httpClient, environment)
     val pdlConsumer = PdlConsumer(httpClient, environment)
@@ -93,6 +91,15 @@ private fun setupSubjectNameCache(environment: Environment): EvictingCache<Strin
     )
 
     return EvictingCache(evictingCacheConfig)
+}
+
+private fun setupOpenAmTokenInfoProvider(openAMConsumer: OpenAMConsumer, environment: Environment): OpenAMTokenInfoProvider {
+    return if (environment.openAmTokenInfoCacheEnabled.toBoolean()) {
+        val openAmTokenInfoCache = setupOpenAMTokenInfoCache(environment)
+        CachingOpenAmTokenInfoProvider(openAMConsumer, openAmTokenInfoCache)
+    } else {
+        NonCachingOpenAmTokenInfoProvider(openAMConsumer)
+    }
 }
 
 private fun setupOpenAMTokenInfoCache(environment: Environment): EvictingCache<String, OpenAMTokenInfo> {

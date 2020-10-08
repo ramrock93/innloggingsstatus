@@ -26,6 +26,7 @@ data class Environment(
     val corsAllowedSubdomains: List<String> = getEnvVarAsList("CORS_ALLOWED_SUBDOMAINS", emptyList()),
     val subjectNameCacheThreshold: String = getEnvVar("SUBJECT_NAME_CACHE_THRESHOLD", "4096"),
     val subjectNameCacheExpiryMinutes: String = getEnvVar("SUBJECT_NAME_CACHE_EXPIRY_MINUTES", "30"),
+    val openAmTokenInfoCacheEnabled: String = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_ENABLED", "false"),
     val openAmTokenInfoCacheThreshold: String = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_THRESHOLD", "1024"),
     val openAmTokenInfoCacheExpiryMinutes: String = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", "1")
 )
