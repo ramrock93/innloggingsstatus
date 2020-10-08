@@ -62,7 +62,7 @@ class OpenAMConsumer(
                 parameter("attributenames", "SecurityLevel")
             }
         } catch (e: Exception) {
-            throw OpenAMException("Feil ved henting av attributter for nav-esso token", e)
+            throw OpenAMException("Feil ved henting av attributter for nav-esso token")
         }
     }
 
