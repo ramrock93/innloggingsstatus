@@ -63,8 +63,8 @@ private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
             clusterName = environment.clusterName,
             namespace = environment.namespace,
             eventsTopLevelName = "personbruker-innloggingsstatus",
-            enableEventBatching = environment.sensuBatchingEnabled.toBoolean(),
-            eventBatchesPerSecond = environment.sensuBatchesPerSecond.toInt()
+            enableEventBatching = environment.sensuBatchingEnabled,
+            eventBatchesPerSecond = environment.sensuBatchesPerSecond
         )
 
         InfluxMetricsReporter(sensuConfig)
@@ -73,7 +73,7 @@ private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
 
 private fun resolveStsService(stsConsumer: STSConsumer, environment: Environment): StsService {
 
-    return if (environment.stsCacheEnabled.toBoolean()) {
+    return if (environment.stsCacheEnabled) {
         val stsTokenCache = StsTokenCache(stsConsumer, environment)
         CachingStsService(stsTokenCache)
     } else {
@@ -82,8 +82,8 @@ private fun resolveStsService(stsConsumer: STSConsumer, environment: Environment
 }
 
 private fun setupSubjectNameCache(environment: Environment): EvictingCache<String, String> {
-    val cacheThreshold = environment.subjectNameCacheThreshold.toInt()
-    val cacheExpiryMinutes = environment.subjectNameCacheExpiryMinutes.toLong()
+    val cacheThreshold = environment.subjectNameCacheThreshold
+    val cacheExpiryMinutes = environment.subjectNameCacheExpiryMinutes
 
     val evictingCacheConfig = EvictingCacheConfig(
         evictionThreshold = cacheThreshold,
@@ -94,7 +94,7 @@ private fun setupSubjectNameCache(environment: Environment): EvictingCache<Strin
 }
 
 private fun setupOpenAmTokenInfoProvider(openAMConsumer: OpenAMConsumer, environment: Environment): OpenAMTokenInfoProvider {
-    return if (environment.openAmTokenInfoCacheEnabled.toBoolean()) {
+    return if (environment.openAmTokenInfoCacheEnabled) {
         val openAmTokenInfoCache = setupOpenAMTokenInfoCache(environment)
         CachingOpenAmTokenInfoProvider(openAMConsumer, openAmTokenInfoCache)
     } else {
@@ -103,8 +103,8 @@ private fun setupOpenAmTokenInfoProvider(openAMConsumer: OpenAMConsumer, environ
 }
 
 private fun setupOpenAMTokenInfoCache(environment: Environment): EvictingCache<String, OpenAMTokenInfo> {
-    val cacheThreshold = environment.openAmTokenInfoCacheThreshold.toInt()
-    val cacheExpiryMinutes = environment.openAmTokenInfoCacheExpiryMinutes.toLong()
+    val cacheThreshold = environment.openAmTokenInfoCacheThreshold
+    val cacheExpiryMinutes = environment.openAmTokenInfoCacheExpiryMinutes
 
     val evictingCacheConfig = EvictingCacheConfig(
         evictionThreshold = cacheThreshold,
