@@ -15,5 +15,6 @@ class OpenAMTokenService(private val openAMTokenInfoProvider: OpenAMTokenInfoPro
 
     private val ApplicationRequest.navEssoToken: String? get() {
         return cookies[NAV_ESSO_COOKIE]
+            ?: headers[NAV_ESSO_COOKIE]
     }
 }
