@@ -36,6 +36,8 @@ spec:
         mountPath: /secret/pdl_apiKey
       - kvPath: /apikey/apigw/{{vault_namespace}}/security-token-service-token/{{vault_consumer_name}}
         mountPath: /secret/sts_apiKey
+  envFrom:
+    - configmap: loginservice-idporten
   resources:
     limits:
       cpu: "3"
