@@ -29,8 +29,10 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
         }
     }
 
-    suspend fun getDetailedAuthInfo(call: ApplicationCall): AuthInfo {
-        return fetchAndParseAuthInfo(call)
+    suspend fun getAuthSummary(call: ApplicationCall): AuthSummary {
+        return fetchAndParseAuthInfo(call).let { authInfo ->
+            AuthSummary.fromAuthInfo(authInfo)
+        }
     }
 
     private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {

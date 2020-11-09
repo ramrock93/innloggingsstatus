@@ -36,6 +36,7 @@ dependencies {
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
+    implementation(NAV.customKtorCorsFeature)
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
     testImplementation(Kluent.kluent)
@@ -63,8 +64,8 @@ tasks {
 
     register("runServer", JavaExec::class) {
         environment("OIDC_ISSUER", "http://localhost:9000")
-        environment("OIDC_DISCOVERY_URL", "http://localhost:9000/.well-known/openid-configuration")
-        environment("OIDC_ACCEPTED_AUDIENCE", "stubOidcClient")
+        environment("LOGINSERVICE_IDPORTEN_DISCOVERY_URL", "http://localhost:9000/.well-known/openid-configuration")
+        environment("LOGINSERVICE_IDPORTEN_AUDIENCE", "stubOidcClient")
         environment("OPEN_AM_REST_SERVICE_URL", "http://localhost:8095/esso")
         environment("SECURITY_TOKEN_SERVICE_URL", "http://localhost:8095/security-token-service-token")
         environment("STS_API_GW_KEY", "stsKey")
@@ -79,6 +80,7 @@ tasks {
         environment("STS_CACHE_ENABLED", "false")
         environment("STS_CACHE_EXPIRY_MARGIN_MINUTES", "5")
         environment("CORS_ALLOWED_ORIGINS", "localhost:9002")
+        environment("CORS_ALLOWED_SUBDOMAINS", "*")
         environment("OIDC_CLAIM_CONTAINING_THE_IDENTITY", "pid")
 
         main = application.mainClassName
