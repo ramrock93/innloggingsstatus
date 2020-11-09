@@ -1,5 +1,11 @@
 package no.nav.personbruker.innloggingsstatus.config
 
+import no.nav.personbruker.dittnav.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
+import no.nav.personbruker.dittnav.common.util.config.IntEnvVar.getEnvVarAsInt
+import no.nav.personbruker.dittnav.common.util.config.LongEnvVar.getEnvVarAsLong
+import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
+import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVarAsList
+
 data class Environment(
     val applicationName: String = "innloggingsstatus",
     val openAMServiceUrl: String = getEnvVar("OPEN_AM_REST_SERVICE_URL"),
@@ -17,29 +23,16 @@ data class Environment(
     val namespace: String = getEnvVar("NAIS_NAMESPACE"),
     val sensuHost: String = getEnvVar("SENSU_HOST"),
     val sensuPort: String = getEnvVar("SENSU_PORT"),
-    val sensuBatchingEnabled: Boolean = getEnvVar("SENSU_BATCHING_ENABLED", "true").toBoolean(),
-    val sensuBatchesPerSecond: Int = getEnvVar("SENSU_BATCHING_ENABLED", "3").toInt(),
-    val stsCacheEnabled: Boolean  = getEnvVar("STS_CACHE_ENABLED").toBoolean(),
+    val sensuBatchingEnabled: Boolean = getEnvVarAsBoolean("SENSU_BATCHING_ENABLED", true),
+    val sensuBatchesPerSecond: Int = getEnvVarAsInt("SENSU_BATCHING_ENABLED", 3),
+    val stsCacheEnabled: Boolean = getEnvVarAsBoolean("STS_CACHE_ENABLED"),
     val stsCacheExpiryMarginMinutes: String  = getEnvVar("STS_CACHE_EXPIRY_MARGIN_MINUTES"),
     val corsAllowedOrigins: String = getEnvVar("CORS_ALLOWED_ORIGINS"),
     val corsAllowedSchemes: List<String> = getEnvVarAsList("CORS_ALLOWED_SCHEMES", listOf("https")),
     val corsAllowedSubdomains: List<String> = getEnvVarAsList("CORS_ALLOWED_SUBDOMAINS", emptyList()),
-    val subjectNameCacheThreshold: Int = getEnvVar("SUBJECT_NAME_CACHE_THRESHOLD", "4096").toInt(),
-    val subjectNameCacheExpiryMinutes: Long = getEnvVar("SUBJECT_NAME_CACHE_EXPIRY_MINUTES", "30").toLong(),
-    val openAmTokenInfoCacheEnabled: Boolean = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_ENABLED", "false").toBoolean(),
-    val openAmTokenInfoCacheThreshold: Int = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_THRESHOLD", "1024").toInt(),
-    val openAmTokenInfoCacheExpiryMinutes: Long = getEnvVar("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", "1").toLong()
+    val subjectNameCacheThreshold: Int = getEnvVarAsInt("SUBJECT_NAME_CACHE_THRESHOLD",  4096),
+    val subjectNameCacheExpiryMinutes: Long = getEnvVarAsLong("SUBJECT_NAME_CACHE_EXPIRY_MINUTES", 30),
+    val openAmTokenInfoCacheEnabled: Boolean = getEnvVarAsBoolean("OPEN_AM_TOKEN_INFO_CACHE_ENABLED", false),
+    val openAmTokenInfoCacheThreshold: Int = getEnvVarAsInt("OPEN_AM_TOKEN_INFO_CACHE_THRESHOLD", 1024),
+    val openAmTokenInfoCacheExpiryMinutes: Long = getEnvVarAsLong("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", 1)
 )
-
-private fun getEnvVar(varName: String, default: String? = null): String {
-    return System.getenv(varName)
-        ?: default
-        ?: throw IllegalArgumentException("Appen kan ikke starte uten at miljøvariabelen $varName er satt.")
-}
-
-private fun getEnvVarAsList(varName: String, default: List<String>? = null): List<String> {
-    return System.getenv(varName)
-        ?.split(",")
-        ?: default
-        ?: throw IllegalArgumentException("Appen kan ikke starte uten at miljøvariabelen $varName er satt eller default er gitt.")
-}
