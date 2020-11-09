@@ -16,9 +16,9 @@ fun Route.authApi(authService: AuthTokenService) {
         }
     }
 
-    get("/detail") {
+    get("/summary") {
         try {
-            authService.getDetailedAuthInfo(call).let { authInfo ->
+            authService.getAuthSummary(call).let { authInfo ->
                 call.respond(HttpStatusCode.OK, authInfo)
             }
         } catch(exception: Exception) {

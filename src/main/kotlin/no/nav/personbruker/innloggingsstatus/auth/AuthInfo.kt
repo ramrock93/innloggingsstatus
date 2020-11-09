@@ -10,7 +10,7 @@ data class AuthInfo (
     val oidcToken: OidcTokenInfo?,
     val openAMToken: OpenAMTokenInfo?
 ) {
-    val authenticated: Boolean get() = oidcToken != null || openAMToken != null && stable
+    val authenticated: Boolean get() = (oidcToken != null || openAMToken != null) && stable
 
     val stable: Boolean get() = openAMToken == null || oidcToken == null || oidcToken.subject == openAMToken.subject
 
