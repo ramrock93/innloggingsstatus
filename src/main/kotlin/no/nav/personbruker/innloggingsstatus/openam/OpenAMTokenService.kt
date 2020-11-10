@@ -5,7 +5,7 @@ import io.ktor.request.ApplicationRequest
 
 class OpenAMTokenService(private val openAMTokenInfoProvider: OpenAMTokenInfoProvider) {
 
-    private val NAV_ESSO_COOKIE = "nav-esso"
+    private val NAV_ESSO = "nav-esso"
 
     suspend fun getOpenAMToken(call: ApplicationCall): OpenAMTokenInfo? {
         return call.request.navEssoToken?.let { essoToken ->
@@ -14,6 +14,7 @@ class OpenAMTokenService(private val openAMTokenInfoProvider: OpenAMTokenInfoPro
     }
 
     private val ApplicationRequest.navEssoToken: String? get() {
-        return cookies[NAV_ESSO_COOKIE]
+        return cookies[NAV_ESSO]
+            ?: headers[NAV_ESSO]
     }
 }
