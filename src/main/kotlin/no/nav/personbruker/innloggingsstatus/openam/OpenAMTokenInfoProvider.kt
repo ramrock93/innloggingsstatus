@@ -1,13 +1,10 @@
 package no.nav.personbruker.innloggingsstatus.openam
 
 import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
-import org.slf4j.LoggerFactory
 
 abstract class OpenAMTokenInfoProvider(private val openAMConsumer: OpenAMConsumer) {
 
     abstract suspend fun getTokenInfo(essoToken: String): OpenAMTokenInfo?
-
-    private val log = LoggerFactory.getLogger(OpenAMTokenInfoProvider::class.java)
 
     protected suspend fun fetchAndMapTokenAttributes(essoToken: String): OpenAMTokenInfo? {
         return fetchTokenAttributes(essoToken).takeIf { response ->
@@ -18,11 +15,10 @@ abstract class OpenAMTokenInfoProvider(private val openAMConsumer: OpenAMConsume
     }
 
     private suspend fun fetchTokenAttributes(essoToken: String): OpenAMResponse {
-        try {
-            return openAMConsumer.getOpenAMTokenAttributes(essoToken)
+        return try {
+            openAMConsumer.getOpenAMTokenAttributes(essoToken)
         } catch (e: Exception) {
-            log.warn("Fikk feil ved kontakt mot esso/openAM under henting av attributter for esso-token.", e)
-            throw e
+            OpenAMResponse.errorResponse()
         }
     }
 }

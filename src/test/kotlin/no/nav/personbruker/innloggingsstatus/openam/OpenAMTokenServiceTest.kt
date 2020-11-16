@@ -3,7 +3,7 @@ package no.nav.personbruker.innloggingsstatus.openam
 import io.ktor.application.ApplicationCall
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -27,10 +27,11 @@ internal class OpenAMTokenServiceTest {
     @Test
     fun `should not attempt to fetch token info if nav-esso cookie is missing`() {
         every { call.request.cookies[any()] } returns null
+        every { call.request.headers[any()] } returns null
 
         val response = runBlocking { openAMTokenService.getOpenAMToken(call) }
 
-        response `should equal` null
+        response `should be equal to` null
 
         coVerify(exactly = 0) { tokenProvider.getTokenInfo(any()) }
     }
@@ -38,11 +39,13 @@ internal class OpenAMTokenServiceTest {
     @Test
     fun `should query for token info if nav-esso cookie is found`() {
         every { call.request.cookies["nav-esso"] } returns essoToken
+        every { call.request.headers["nav-esso"] } returns null
+
         coEvery { tokenProvider.getTokenInfo(essoToken) } returns OpenAMTokenInfo(subject, authLevel)
 
         val response = runBlocking { openAMTokenService.getOpenAMToken(call) }
 
-        response?.authLevel `should equal` authLevel
-        response?.subject `should equal` subject
+        response?.authLevel `should be equal to` authLevel
+        response?.subject `should be equal to` subject
     }
 }
