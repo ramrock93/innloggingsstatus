@@ -2,6 +2,7 @@ package no.nav.personbruker.innloggingsstatus.common.metrics
 
 import io.ktor.application.*
 import io.ktor.http.*
+import no.nav.personbruker.dittnav.common.logging.util.logger
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.innloggingsstatus.auth.AuthInfo
 import no.nav.personbruker.innloggingsstatus.auth.UserInfo
@@ -41,7 +42,7 @@ class MetricsCollector(private val metricsReporter: MetricsReporter) {
             "oidcTokenTimeToExpirySeconds" to metrics.oidcMetrics.tokenTimeToExpirySeconds,
             "authenticatedWithOpenAM" to metrics.openAMMetrics.authenticated,
             "openAMAuthLevel" to metrics.openAMMetrics.authLevel,
-            "requestReferrerPath" to metrics.requestReferrerPath
+            "requestRefererPath" to StringHack(metrics.requestReferrerPath)
         ).toMap()
 
         val tagMap = listOf(
@@ -53,14 +54,26 @@ class MetricsCollector(private val metricsReporter: MetricsReporter) {
     }
 
     private fun getRequestDomain(call: ApplicationCall): String {
-        return call.request.headers[HttpHeaders.Origin]?.let { UrlPartUtil.parseDomain(it) }
+        val domain = call.request.headers[HttpHeaders.Origin]?.let { UrlPartUtil.parseDomain(it) }
             ?: call.request.headers[HttpHeaders.Referrer]?.let { UrlPartUtil.parseDomain(it) }
-            ?: ""
+            ?: "unknown"
+
+        logger.info("Domain: $domain")
+
+        return domain
     }
 
     private fun getRequestReferrerPath(call: ApplicationCall): String {
-        return call.request.headers[HttpHeaders.Referrer]
+        val path = call.request.headers[HttpHeaders.Referrer]
             ?.let { UrlPartUtil.parsePath(it) }
-            ?: ""
+            ?: "unknown"
+
+        logger.info("Path: $path")
+
+        return path
+    }
+
+    private data class StringHack (private val string: String) {
+        override fun toString(): String = "\\\"$string\\\""
     }
 }
