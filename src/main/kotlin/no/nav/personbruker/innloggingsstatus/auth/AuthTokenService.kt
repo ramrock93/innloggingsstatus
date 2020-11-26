@@ -43,7 +43,7 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
 
         val userInfo = getUserInfo(authInfo)
 
-        metricsCollector.recordAuthMetrics(authInfo, userInfo)
+        metricsCollector.recordAuthMetrics(authInfo, userInfo, call)
 
 
         userInfo
