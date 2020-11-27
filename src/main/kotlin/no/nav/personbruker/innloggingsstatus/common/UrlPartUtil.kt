@@ -9,12 +9,4 @@ object UrlPartUtil {
             domain
         }?: ""
     }
-
-    fun parsePath(referer: String): String {
-        val originRegex = "^(.+)://([^/]+)(/[^\\?]*)(\\?.*)?$".toRegex()
-
-        return originRegex.find(referer)?.destructured?.let { (_, _, path) ->
-            path
-        }?: "/"
-    }
 }
