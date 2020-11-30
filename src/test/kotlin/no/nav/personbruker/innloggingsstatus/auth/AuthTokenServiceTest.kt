@@ -45,7 +45,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns tokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
@@ -64,7 +64,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns tokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
@@ -78,7 +78,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(any()) } returns subject1Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
@@ -105,7 +105,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
@@ -132,7 +132,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
@@ -159,7 +159,7 @@ internal class AuthTokenServiceTest {
         coEvery { openAMTokenService.getOpenAMToken(call) } returns subject2OpenAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { subjectNameService.getSubjectName(subject2) } returns subject2Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
@@ -178,7 +178,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } throws Exception()
         coEvery { openAMTokenService.getOpenAMToken(call) } returns subject2OpenAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 
@@ -199,7 +199,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns subject1OidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } throws Exception()
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { metricsCollector.recordAuthMetrics(any(), any()) } returns Unit
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
 

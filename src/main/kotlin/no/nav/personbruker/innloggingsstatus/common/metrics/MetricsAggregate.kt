@@ -6,7 +6,8 @@ data class MetricsAggregate (
     val foundSubjectName: Boolean,
     val operatingAuthLevel: Int,
     val oidcMetrics: OidcMetrics,
-    val openAMMetrics: OpenAMMetrics
+    val openAMMetrics: OpenAMMetrics,
+    val requestDomain: String
 ) {
     val authenticationState get() =
         if (oidcMetrics.authenticated && openAMMetrics.authenticated) {
