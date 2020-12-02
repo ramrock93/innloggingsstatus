@@ -27,7 +27,6 @@ class MetricsCollector(private val metricsReporter: MetricsReporter) {
             oidcMetrics = OidcMetrics.fromAuthInfo(authInfo),
             openAMMetrics = OpenAMMetrics.fromAuthInfo(authInfo),
             requestDomain = getRequestDomain(call),
-            originDomain = getOriginDomain(call)
         )
     }
 
@@ -45,8 +44,7 @@ class MetricsCollector(private val metricsReporter: MetricsReporter) {
 
         val tagMap = listOf(
             "authenticationState" to metrics.authenticationState.name,
-            "requestDomain" to metrics.requestDomain,
-            "originDomain" to metrics.requestDomain
+            "requestDomain" to metrics.requestDomain
         ).toMap()
 
         metricsReporter.registerDataPoint(USER_AUTH_INFO, fieldMap, tagMap)
@@ -55,11 +53,6 @@ class MetricsCollector(private val metricsReporter: MetricsReporter) {
     private fun getRequestDomain(call: ApplicationCall): String {
         return  call.request.headers[HttpHeaders.Origin]?.let { UrlPartUtil.parseDomain(it) }
             ?: call.request.headers[HttpHeaders.Referrer]?.let { UrlPartUtil.parseDomain(it) }
-            ?: "unknown"
-    }
-
-    private fun getOriginDomain(call: ApplicationCall): String {
-        return  call.request.headers[HttpHeaders.Origin]?.let { UrlPartUtil.parseDomain(it) }
             ?: "unknown"
     }
 }
