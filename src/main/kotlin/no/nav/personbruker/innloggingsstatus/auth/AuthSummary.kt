@@ -8,8 +8,8 @@ import java.time.LocalDateTime
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonAutoDetect(fieldVisibility = ANY)
 class AuthSummary private constructor(authInfo: AuthInfo) {
-    private val authLevel: Int? = authInfo.authLevel
     private val authenticated: Boolean = authInfo.authenticated
+    private val authLevel: Int? = authInfo.authLevel
     private val oidc: OidcSummary? = OidcSummary.fromAuthInfo(authInfo)
     private val openAM: OpenAMSummary? = OpenAMSummary.fromAuthInfo(authInfo)
 
