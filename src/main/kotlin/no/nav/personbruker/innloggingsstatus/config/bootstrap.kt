@@ -28,10 +28,11 @@ fun Application.mainModule() {
 
     install(NonStandardCORS) {
         host(
-            host = environment.corsAllowedOrigins,
+            host = environment.corsAllowedHost,
             schemes = environment.corsAllowedSchemes,
             subDomains = environment.corsAllowedSubdomains
         )
+        registerAdditionalOrigins(environment.corsAdditionalAllowedOrigins, environment.corsAllowedSchemes)
         allowCredentials = true
         header(HttpHeaders.ContentType)
     }
@@ -46,5 +47,11 @@ fun Application.mainModule() {
     routing {
         healthApi(applicationContext.selfTests)
         authApi(applicationContext.authTokenService)
+    }
+}
+
+fun NonStandardCORS.Configuration.registerAdditionalOrigins(origins: List<String>, schemes: List<String>) {
+    origins.forEach { origin ->
+        host(origin, schemes)
     }
 }
