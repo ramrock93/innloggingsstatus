@@ -1,6 +1,6 @@
 package no.nav.personbruker.innloggingsstatus.user
 
-import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
+import no.nav.personbruker.dittnav.common.cache.EvictingCache
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
 
 class SubjectNameService(private val pdlService: PdlService, private val cache: EvictingCache<String, String>) {

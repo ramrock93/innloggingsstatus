@@ -1,6 +1,6 @@
 package no.nav.personbruker.innloggingsstatus.openam
 
-import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
+import no.nav.personbruker.dittnav.common.cache.EvictingCache
 
 abstract class OpenAMTokenInfoProvider(private val openAMConsumer: OpenAMConsumer) {
 

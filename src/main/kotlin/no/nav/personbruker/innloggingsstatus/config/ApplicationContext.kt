@@ -6,8 +6,8 @@ import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.SensuConfig
-import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
-import no.nav.personbruker.dittnav.common.util.cache.EvictingCacheConfig
+import no.nav.personbruker.dittnav.common.cache.EvictingCache
+import no.nav.personbruker.dittnav.common.cache.EvictingCacheConfig
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService

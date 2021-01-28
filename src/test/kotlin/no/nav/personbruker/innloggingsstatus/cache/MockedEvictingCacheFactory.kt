@@ -3,7 +3,7 @@ package no.nav.personbruker.innloggingsstatus.cache
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
-import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
+import no.nav.personbruker.dittnav.common.cache.EvictingCache
 
 object MockedEvictingCacheFactory {
     inline fun <reified K: Any, reified V: Any> createShallowCache(): EvictingCache<K, V> {

@@ -3,7 +3,7 @@ package no.nav.personbruker.innloggingsstatus.user
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.common.util.cache.EvictingCache
+import no.nav.personbruker.dittnav.common.cache.EvictingCache
 import no.nav.personbruker.innloggingsstatus.cache.MockedEvictingCacheFactory
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
 import no.nav.personbruker.innloggingsstatus.pdl.query.PdlNavn

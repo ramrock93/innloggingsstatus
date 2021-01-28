@@ -16,7 +16,8 @@ repositories {
 dependencies {
     implementation(DittNAV.Common.logging)
     implementation(DittNAV.Common.utils)
-    implementation(DittNAV.Common.metrics)
+    implementation(DittNAV.Common.influx)
+    implementation(DittNAV.Common.evictingCache)
     implementation(Jackson.dataTypeJsr310)
     implementation(Jackson.moduleKotlin)
     implementation(Kotlinx.coroutines)
