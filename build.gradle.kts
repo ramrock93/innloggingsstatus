@@ -77,7 +77,7 @@ tasks {
         environment("NAIS_CLUSTER_NAME", "dev-sbs")
         environment("NAIS_NAMESPACE", "local")
         environment("SENSU_HOST", "stub")
-        environment("SENSU_PORT", "")
+        environment("SENSU_PORT", "0")
         environment("STS_CACHE_ENABLED", "false")
         environment("STS_CACHE_EXPIRY_MARGIN_MINUTES", "5")
         environment("CORS_ALLOWED_HOST", "*")
