@@ -35,5 +35,14 @@ data class Environment(
     val subjectNameCacheExpiryMinutes: Long = getEnvVarAsLong("SUBJECT_NAME_CACHE_EXPIRY_MINUTES", 30),
     val openAmTokenInfoCacheEnabled: Boolean = getEnvVarAsBoolean("OPEN_AM_TOKEN_INFO_CACHE_ENABLED", false),
     val openAmTokenInfoCacheThreshold: Int = getEnvVarAsInt("OPEN_AM_TOKEN_INFO_CACHE_THRESHOLD", 1024),
-    val openAmTokenInfoCacheExpiryMinutes: Long = getEnvVarAsLong("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", 1)
+    val openAmTokenInfoCacheExpiryMinutes: Long = getEnvVarAsLong("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", 1),
+    val idportenWellKnownUrl: String = getIdportenEnvVar("IDPORTEN_WELL_KNOWN_URL"),
+    val idportenClientId: String = getIdportenEnvVar("IDPORTEN_CLIENT_ID"),
+    val idportenClientJwk: String = getIdportenEnvVar("IDPORTEN_CLIENT_JWK"),
+    val idportenRedirectUri: String = getIdportenEnvVar("IDPORTEN_REDIRECT_URI")
 )
+
+private fun getIdportenEnvVar(varName: String): String {
+    return System.getenv(varName)
+        ?: throw IllegalArgumentException("Fant ikke $varName som brukes i token-support-idporten. Påse at nais.yaml er konfigurert riktig.")
+}

@@ -6,6 +6,8 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.HttpTimeout
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.*
+import kotlinx.serialization.json.Json
 
 object HttpClientBuilder {
 
@@ -24,3 +26,9 @@ fun buildJsonSerializer(): JacksonSerializer {
         registerModule(JavaTimeModule())
     }
 }
+
+fun buildJsonSerializerKotlinX() = KotlinxSerializer(
+    Json {
+        ignoreUnknownKeys = true
+    }
+)
