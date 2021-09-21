@@ -4,21 +4,22 @@ import io.ktor.application.ApplicationCall
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
+import no.nav.personbruker.innloggingsstatus.tokendings.TokendingsService
 import no.nav.personbruker.innloggingsstatus.user.SubjectNameService
 import org.slf4j.LoggerFactory
-import kotlin.coroutines.CoroutineContext
 
 @KtorExperimentalAPI
 class AuthTokenService(private val oidcTokenService: OidcTokenService,
                        private val openAMTokenService: OpenAMTokenService,
                        private val subjectNameService: SubjectNameService,
+                       private val tokendingsService: TokendingsService,
                        private val metricsCollector: MetricsCollector) {
 
     val log = LoggerFactory.getLogger(AuthTokenService::class.java)
+    private val NAV_TOKENDINGS = "nav-tokendings-token"
 
     suspend fun getAuthenticatedUserInfo(call: ApplicationCall): UserInfo {
         return try {
@@ -38,8 +39,9 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
+        val idportenUser = async { tokendingsService.getIdportenToken(call) }
 
-        val authInfo = AuthInfo(oidcToken.await(), openAMToken.await())
+        val authInfo = AuthInfo(oidcToken.await(), openAMToken.await(), idportenUser.await())
 
         val userInfo = getUserInfo(authInfo)
 
@@ -52,8 +54,9 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     private suspend fun fetchAndParseAuthInfo(call: ApplicationCall): AuthInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
+        val idportenUser = async { tokendingsService.getIdportenToken(call) }
 
-        AuthInfo(oidcToken.await(), openAMToken.await())
+        AuthInfo(oidcToken.await(), openAMToken.await(), idportenUser.await())
     }
 
     private suspend fun getUserInfo(authInfo: AuthInfo): UserInfo {

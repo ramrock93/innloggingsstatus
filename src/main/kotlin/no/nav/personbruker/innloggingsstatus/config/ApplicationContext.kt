@@ -1,7 +1,13 @@
 package no.nav.personbruker.innloggingsstatus.config
 
+import com.auth0.jwk.JwkProvider
+import com.auth0.jwk.JwkProviderBuilder
+import io.ktor.auth.*
+import io.ktor.client.*
 import io.ktor.config.ApplicationConfig
+import io.ktor.http.*
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.InfluxMetricsReporter
@@ -10,6 +16,10 @@ import no.nav.personbruker.dittnav.common.cache.EvictingCache
 import no.nav.personbruker.dittnav.common.cache.EvictingCacheConfig
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
+import no.nav.personbruker.innloggingsstatus.idporten.authentication.IdPortenService
+import no.nav.personbruker.innloggingsstatus.idporten.authentication.IdportenClientInterceptor
+import no.nav.personbruker.innloggingsstatus.idporten.authentication.OauthServerConfigurationMetadata
+import no.nav.personbruker.innloggingsstatus.idporten.authentication.config.Idporten
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenValidator
 import no.nav.personbruker.innloggingsstatus.openam.*
@@ -20,10 +30,14 @@ import no.nav.personbruker.innloggingsstatus.sts.NonCachingStsService
 import no.nav.personbruker.innloggingsstatus.sts.STSConsumer
 import no.nav.personbruker.innloggingsstatus.sts.StsService
 import no.nav.personbruker.innloggingsstatus.sts.cache.StsTokenCache
+import no.nav.personbruker.innloggingsstatus.tokendings.TokendingsService
+import no.nav.personbruker.innloggingsstatus.tokendings.TokendingsTokenValidator
 import no.nav.personbruker.innloggingsstatus.user.SubjectNameService
+import java.net.URL
+import java.util.concurrent.TimeUnit
 
 @KtorExperimentalAPI
-class ApplicationContext(config: ApplicationConfig) {
+internal class ApplicationContext(config: ApplicationConfig) {
 
     val environment = Environment()
 
@@ -47,7 +61,25 @@ class ApplicationContext(config: ApplicationConfig) {
     val metricsReporter = resolveMetricsReporter(environment)
     val metricsCollector = MetricsCollector(metricsReporter)
 
-    val authTokenService = AuthTokenService(oidcValidationService, openAMValidationService, subjectNameService, metricsCollector)
+    val idportenTokenCookieName = "innloggingstatus_idporten"
+    val idportenMetadata = fetchMetadata(
+        httpClient,
+        environment.idportenWellKnownUrl
+    )
+
+    private val idportenClientInterceptor = createIdPortenClientInterceptor(environment, idportenMetadata)
+    val oauth2ServerSettings = createOAuth2ServerSettings(
+        environment,
+        idportenMetadata,
+        idportenClientInterceptor
+    )
+    val idportenJwkProvider = createJwkProvider(idportenMetadata)
+
+    val idportenService = IdPortenService(idportenJwkProvider, idportenMetadata, environment)
+    val tokendingsTokenValidator = TokendingsTokenValidator(config)
+    val tokendingsService = TokendingsService(tokendingsTokenValidator, idportenService)
+
+    val authTokenService = AuthTokenService(oidcValidationService, openAMValidationService, subjectNameService, tokendingsService, metricsCollector)
 
     val selfTests = listOf(openAMConsumer, stsConsumer, pdlConsumer)
 }
@@ -113,3 +145,44 @@ private fun setupOpenAMTokenInfoCache(environment: Environment): EvictingCache<S
 
     return EvictingCache(evictingCacheConfig)
 }
+
+private fun createOAuth2ServerSettings(
+    environment: Environment,
+    metadata: OauthServerConfigurationMetadata,
+    idportenClientInterceptor: IdportenClientInterceptor
+) = OAuthServerSettings.OAuth2ServerSettings(
+    name = "IdPorten",
+    authorizeUrl = metadata.authorizationEndpoint,
+    accessTokenUrl = metadata.tokenEndpoint,
+    clientId = environment.idportenClientId,
+    clientSecret = "",
+    accessTokenRequiresBasicAuth = false,
+    requestMethod = HttpMethod.Post,
+    defaultScopes = listOf(Idporten.scope),
+    authorizeUrlInterceptor = createAuthorizeUrlInterceptor(),
+    accessTokenInterceptor = idportenClientInterceptor.appendClientAssertion
+)
+
+private fun createAuthorizeUrlInterceptor(): URLBuilder.() -> Unit {
+    return {
+        parameters.append("response_mode", "query")
+        parameters.append("acr_values", "Level4")       // SecurityLevel 4
+//      parameters.append("acr_values", "Level3                     // SecurityLevel 3
+//      {}                                                          // SecurityLevel unspecified
+    }
+}
+
+private fun fetchMetadata(httpClient: HttpClient, idPortenUrl: String) = runBlocking {
+    httpClient.getOAuthServerConfigurationMetadata(idPortenUrl)
+}
+
+private fun createJwkProvider(metadata: OauthServerConfigurationMetadata): JwkProvider = JwkProviderBuilder(URL(metadata.jwksUri))
+    .cached(10, 24, TimeUnit.HOURS)
+    .rateLimited(10, 1, TimeUnit.MINUTES)
+    .build()
+
+private fun createIdPortenClientInterceptor(environment: Environment, metadata: OauthServerConfigurationMetadata) = IdportenClientInterceptor(
+    privateJwk = environment.idportenClientJwk,
+    clientId = environment.idportenClientId,
+    audience = metadata.issuer
+)
