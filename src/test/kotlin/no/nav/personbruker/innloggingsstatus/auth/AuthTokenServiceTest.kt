@@ -1,5 +1,6 @@
 package no.nav.personbruker.innloggingsstatus.auth
 
+import com.auth0.jwt.interfaces.DecodedJWT
 import io.ktor.application.ApplicationCall
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
@@ -10,9 +11,12 @@ import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenInfo
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenInfo
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
+import no.nav.personbruker.innloggingsstatus.tokendings.TokendingsService
 import no.nav.personbruker.innloggingsstatus.user.SubjectNameService
+import no.nav.tms.token.support.idporten.user.IdportenUser
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.time.LocalDateTime
 
 @KtorExperimentalAPI
@@ -24,12 +28,15 @@ internal class AuthTokenServiceTest {
     private val subject1Name = "oneTwoThree"
     private val subject2Name = "fourFiveSix"
 
+    private val decodedJWT: DecodedJWT = mockk()
+
     private val oidcTokenService: OidcTokenService = mockk()
     private val openAMTokenService: OpenAMTokenService = mockk()
     private val subjectNameService: SubjectNameService = mockk()
     private val metricsCollector: MetricsCollector = mockk()
+    private val tokendingsService: TokendingsService = mockk()
 
-    private val authTokenService = AuthTokenService(oidcTokenService, openAMTokenService, subjectNameService, metricsCollector)
+    private val authTokenService = AuthTokenService(oidcTokenService, openAMTokenService, subjectNameService, tokendingsService, metricsCollector)
 
     private val call: ApplicationCall = mockk()
 
@@ -44,6 +51,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns tokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
+        coEvery { tokendingsService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -62,6 +70,7 @@ internal class AuthTokenServiceTest {
         )
 
         coEvery { oidcTokenService.getOidcToken(call) } returns null
+        coEvery { tokendingsService.getIdportenToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns tokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
@@ -74,9 +83,10 @@ internal class AuthTokenServiceTest {
     }
 
     @Test
-    fun `should provide correct info when unathenticated`() {
+    fun `should provide correct info when unauthenticated`() {
         coEvery { oidcTokenService.getOidcToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
+        coEvery { tokendingsService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(any()) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -101,10 +111,17 @@ internal class AuthTokenServiceTest {
             authLevel = 3
         )
 
+        val idportenUserInfo = IdportenUser(
+            ident = "12345",
+            loginLevel = 3,
+            tokenExpirationTime = Instant.now().plusSeconds(3600),
+            jwt = decodedJWT
+        )
 
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
+        coEvery { tokendingsService.getIdportenToken(call) } returns idportenUserInfo
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
@@ -128,10 +145,52 @@ internal class AuthTokenServiceTest {
             authLevel = 4
         )
 
+        val idportenUserInfo = IdportenUser(
+            ident = "12345",
+            loginLevel = 3,
+            tokenExpirationTime = Instant.now().plusSeconds(3600),
+            jwt = decodedJWT
+        )
+
 
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
+        coEvery { tokendingsService.getIdportenToken(call) } returns idportenUserInfo
+        coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
+
+        val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
+
+        subjectInfo.authenticated `should be equal to` true
+        subjectInfo.name `should be equal to` subject1Name
+        subjectInfo.securityLevel `should be equal to` "4"
+    }
+
+    @Test
+    fun `should defer to security level provided by idporten when it has a step-up`() {
+        val oidcTokenInfo = OidcTokenInfo(
+            subject = subject1,
+            authLevel = 3,
+            issueTime = LocalDateTime.now(),
+            expiryTime = LocalDateTime.now().plusDays(1)
+        )
+
+        val openAmTokenInfo = OpenAMTokenInfo(
+            subject = subject1,
+            authLevel = 3
+        )
+
+        val idportenUserInfo = IdportenUser(
+            ident = "12345",
+            loginLevel = 4,
+            tokenExpirationTime = Instant.now().plusSeconds(3600),
+            jwt = decodedJWT
+        )
+
+        coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
+        coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
+        coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
+        coEvery { tokendingsService.getIdportenToken(call) } returns idportenUserInfo
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
