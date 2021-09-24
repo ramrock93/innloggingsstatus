@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 internal suspend fun HttpClient.getOAuthServerConfigurationMetadata(url: String)
         : OauthServerConfigurationMetadata = withContext(Dispatchers.IO) {
     val log = LoggerFactory.getLogger(HttpClient::class.java)
-    log.info("Fetching OAuth metadata...")
+    log.info("Fetching OAuth metadata from url: $url")
     request {
         method = HttpMethod.Get
         url(url)

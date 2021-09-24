@@ -62,10 +62,7 @@ internal class ApplicationContext(config: ApplicationConfig) {
     val metricsCollector = MetricsCollector(metricsReporter)
 
     val idportenTokenCookieName = "innloggingstatus_idporten"
-    val idportenMetadata = fetchMetadata(
-        httpClient,
-        environment.idportenWellKnownUrl
-    )
+    val idportenMetadata = fetchMetadata(httpClient, environment.idportenWellKnownUrl)
 
     private val idportenClientInterceptor = createIdPortenClientInterceptor(environment, idportenMetadata)
     val oauth2ServerSettings = createOAuth2ServerSettings(

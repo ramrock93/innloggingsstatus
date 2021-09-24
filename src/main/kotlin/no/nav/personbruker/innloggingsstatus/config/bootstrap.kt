@@ -22,6 +22,13 @@ fun Application.mainModule() {
 
     install(DefaultHeaders)
 
+    install(ContentNegotiation) {
+        jackson {
+            registerModule(JavaTimeModule())
+            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        }
+    }
+
     val applicationContext = ApplicationContext(this.environment.config)
 
     val environment = applicationContext.environment
@@ -35,13 +42,6 @@ fun Application.mainModule() {
         registerAdditionalOrigins(environment.corsAdditionalAllowedOrigins, environment.corsAllowedSchemes)
         allowCredentials = true
         header(HttpHeaders.ContentType)
-    }
-
-    install(ContentNegotiation) {
-        jackson {
-            registerModule(JavaTimeModule())
-            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        }
     }
 
     routing {
