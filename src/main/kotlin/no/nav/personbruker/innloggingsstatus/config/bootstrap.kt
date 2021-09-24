@@ -22,9 +22,7 @@ fun Application.mainModule() {
 
     install(DefaultHeaders)
 
-    val config = this.environment.config
-
-    val applicationContext = ApplicationContext(config)
+    val applicationContext = ApplicationContext(this.environment.config)
 
     val environment = applicationContext.environment
 
