@@ -25,7 +25,7 @@ internal class IdportenClientInterceptor(privateJwk: String, private val clientI
     private val privateRsaKey = RSAKey.parse(privateJwk)
 
     val appendClientAssertion: HttpRequestBuilder.() -> Unit = {
-
+        log.info("Appending client assertion...")
         val requestParams = (body as TextContent).text.parseUrlEncodedParameters()
 
         val code = requestParams[OAuth2RequestParameters.Code] ?: throw RuntimeException("Code missing")
