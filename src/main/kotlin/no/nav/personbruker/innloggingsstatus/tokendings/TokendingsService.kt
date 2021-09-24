@@ -18,8 +18,9 @@ class TokendingsService(val tokendingsTokenValidator: TokendingsTokenValidator, 
 
                 IdportenUserFactory.createIdportenUser(call)
             }
-        } else
+        } else {
             null
+        }
     }
 
 }
