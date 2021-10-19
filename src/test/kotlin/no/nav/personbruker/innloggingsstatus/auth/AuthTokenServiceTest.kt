@@ -51,7 +51,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns tokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
-        coEvery { tokendingsService.getIdportenToken(call) } returns null
+        coEvery { tokendingsService.getTokendingsToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -70,7 +70,7 @@ internal class AuthTokenServiceTest {
         )
 
         coEvery { oidcTokenService.getOidcToken(call) } returns null
-        coEvery { tokendingsService.getIdportenToken(call) } returns null
+        coEvery { tokendingsService.getTokendingsToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns tokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
@@ -86,7 +86,7 @@ internal class AuthTokenServiceTest {
     fun `should provide correct info when unauthenticated`() {
         coEvery { oidcTokenService.getOidcToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
-        coEvery { tokendingsService.getIdportenToken(call) } returns null
+        coEvery { tokendingsService.getTokendingsToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(any()) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -121,7 +121,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { tokendingsService.getIdportenToken(call) } returns idportenUserInfo
+        coEvery { tokendingsService.getTokendingsToken(call) } returns idportenUserInfo
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
@@ -156,7 +156,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { tokendingsService.getIdportenToken(call) } returns idportenUserInfo
+        coEvery { tokendingsService.getTokendingsToken(call) } returns idportenUserInfo
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }
@@ -190,7 +190,7 @@ internal class AuthTokenServiceTest {
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
-        coEvery { tokendingsService.getIdportenToken(call) } returns idportenUserInfo
+        coEvery { tokendingsService.getTokendingsToken(call) } returns idportenUserInfo
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
         val subjectInfo = runBlocking { authTokenService.getAuthenticatedUserInfo(call) }

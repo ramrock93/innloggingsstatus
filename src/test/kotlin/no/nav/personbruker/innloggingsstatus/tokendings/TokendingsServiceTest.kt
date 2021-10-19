@@ -41,7 +41,7 @@ internal class TokendingsServiceTest {
     fun `should not attempt to fetch token info if nav-tokendings cookie is missing`() {
         every { call.request.cookies[any()] } returns null
 
-        val response = runBlocking { tokendingsService.getIdportenToken(call) }
+        val response = runBlocking { tokendingsService.getTokendingsToken(call) }
 
         response `should be equal to` null
 
@@ -58,7 +58,7 @@ internal class TokendingsServiceTest {
         coEvery { IdportenUserFactory.createIdportenUser(call) } returns
                 IdportenUser(ident, authLevel, expirationTime, decodedJWT)
 
-        val response = runBlocking { tokendingsService.getIdportenToken(call) }
+        val response = runBlocking { tokendingsService.getTokendingsToken(call) }
 
         response?.loginLevel `should be equal to` 4
         response?.ident `should be equal to` ident

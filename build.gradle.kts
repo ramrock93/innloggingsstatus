@@ -41,6 +41,8 @@ dependencies {
     implementation(Prometheus.logback)
     implementation(NAV.customKtorCorsFeature)
     implementation(Tms.KtorTokenSupport.idporten)
+    implementation(Tms.KtorTokenSupport.tokenXValidation)
+    implementation(Tms.KtorTokenSupport.authenticationInstaller)
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
     testImplementation(Kluent.kluent)

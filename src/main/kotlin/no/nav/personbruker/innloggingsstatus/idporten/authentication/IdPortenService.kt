@@ -29,7 +29,7 @@ class IdPortenService(
 
     fun redirectLogin(call: ApplicationCall) {
         val verifier = TokenVerifier(jwkProvider, clientId, issuer)
-
+        log.info("Intercepting call: ${call.request}")
         provider.pipeline.intercept(AuthenticationPipeline.RequestAuthentication) { context ->
             val idToken = call.request.cookies[tokenCookieName]
             if (idToken != null) {

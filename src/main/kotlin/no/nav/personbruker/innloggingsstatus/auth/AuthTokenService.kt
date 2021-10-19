@@ -15,11 +15,9 @@ import org.slf4j.LoggerFactory
 class AuthTokenService(private val oidcTokenService: OidcTokenService,
                        private val openAMTokenService: OpenAMTokenService,
                        private val subjectNameService: SubjectNameService,
-                       private val tokendingsService: TokendingsService,
                        private val metricsCollector: MetricsCollector) {
 
     val log = LoggerFactory.getLogger(AuthTokenService::class.java)
-    private val NAV_TOKENDINGS = "nav-tokendings-token"
 
     suspend fun getAuthenticatedUserInfo(call: ApplicationCall): UserInfo {
         return try {
@@ -39,10 +37,8 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
-        val idportenUser = async { tokendingsService.getIdportenToken(call) }
 
-        val authInfo = AuthInfo(oidcToken.await(), openAMToken.await(), idportenUser.await())
-
+        val authInfo = AuthInfo(oidcToken.await(), openAMToken.await(), null)
         val userInfo = getUserInfo(authInfo)
 
         metricsCollector.recordAuthMetrics(authInfo, userInfo, call)
@@ -54,9 +50,8 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     private suspend fun fetchAndParseAuthInfo(call: ApplicationCall): AuthInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
-        val idportenUser = async { tokendingsService.getIdportenToken(call) }
 
-        AuthInfo(oidcToken.await(), openAMToken.await(), idportenUser.await())
+        AuthInfo(oidcToken.await(), openAMToken.await(), null)
     }
 
     private suspend fun getUserInfo(authInfo: AuthInfo): UserInfo {
