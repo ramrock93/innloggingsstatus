@@ -18,6 +18,7 @@ dependencies {
     implementation(DittNAV.Common.utils)
     implementation(DittNAV.Common.influx)
     implementation(DittNAV.Common.evictingCache)
+    implementation(Tms.KtorTokenSupport.idporten)
     implementation(Jackson.dataTypeJsr310)
     implementation(Jackson.moduleKotlin)
     implementation(Kotlinx.coroutines)
@@ -82,6 +83,26 @@ tasks {
         environment("STS_CACHE_EXPIRY_MARGIN_MINUTES", "5")
         environment("CORS_ALLOWED_HOST", "*")
         environment("OIDC_CLAIM_CONTAINING_THE_IDENTITY", "pid")
+        environment("IDPORTEN_WELL_KNOWN_URL", "http://localhost:9000/.well-known/openid-configuration")
+        environment("IDPORTEN_CLIENT_ID", "fdsagdsagre2332t4g")
+        environment(
+            "IDPORTEN_CLIENT_JWK",
+            """{
+  "use": "sig",
+  "kty": "RSA",
+  "kid": "jXDxKRE6a4jogcc4HgkDq3uVgQ0",
+  "alg": "RS256",
+  "n": "xQ3chFsz...",
+  "e": "AQAB",
+  "d": "C0BVXQFQ...",
+  "p": "9TGEF_Vk...",
+  "q": "zb0yTkgqO...",
+  "dp": "7YcKcCtJ...",
+  "dq": "sXxLHp9A...",
+  "qi": "QCW5VQjO..."
+}"""
+        )
+        environment("IDPORTEN_REDIRECT_URI", "www.nav.no")
 
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath

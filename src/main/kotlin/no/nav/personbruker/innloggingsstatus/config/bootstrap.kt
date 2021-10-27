@@ -14,6 +14,8 @@ import io.prometheus.client.hotspot.DefaultExports
 import no.nav.personbruker.innloggingsstatus.auth.authApi
 import no.nav.personbruker.innloggingsstatus.health.healthApi
 import no.nav.personbruker.ktor.features.NonStandardCORS
+import no.nav.tms.token.support.idporten.SecurityLevel
+import no.nav.tms.token.support.idporten.installIdPortenAuth
 
 @KtorExperimentalAPI
 fun Application.mainModule() {
@@ -42,6 +44,14 @@ fun Application.mainModule() {
             registerModule(JavaTimeModule())
             disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         }
+    }
+
+    installIdPortenAuth {
+        tokenCookieName = "user_id_token"
+        postLogoutRedirectUri = "https://www.nav.no"
+        setAsDefault = true
+        securityLevel = SecurityLevel.LEVEL_4
+        tokenRefreshEnabled = true
     }
 
     routing {
