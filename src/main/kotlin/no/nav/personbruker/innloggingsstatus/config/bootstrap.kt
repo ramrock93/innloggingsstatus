@@ -46,13 +46,14 @@ fun Application.mainModule() {
         }
     }
 
-    //installIdPortenAuth {
-    //    tokenCookieName = "user_id_token"
-    //    postLogoutRedirectUri = "https://www.nav.no"
-    //    setAsDefault = true
-    //    securityLevel = SecurityLevel.LEVEL_4
-    //    tokenRefreshEnabled = true
-    //}
+    installIdPortenAuth {
+        tokenCookieName = "user_id_token"
+        postLogoutRedirectUri = "https://www.nav.no"
+        setAsDefault = true
+        securityLevel = SecurityLevel.LEVEL_4
+        tokenRefreshEnabled = true
+        enableDefaultProxy = true
+    }
 
     routing {
         healthApi(applicationContext.selfTests)
