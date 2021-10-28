@@ -18,7 +18,7 @@ dependencies {
     implementation(DittNAV.Common.utils)
     implementation(DittNAV.Common.influx)
     implementation(DittNAV.Common.evictingCache)
-    implementation("com.github.navikt.tms-ktor-token-support:token-support-idporten:2021.10.28")
+    implementation("com.github.navikt.tms-ktor-token-support:token-support-idporten:2021.10.28-test-proxy")
     implementation(Jackson.dataTypeJsr310)
     implementation(Jackson.moduleKotlin)
     implementation(Kotlinx.coroutines)
