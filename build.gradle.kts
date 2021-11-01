@@ -23,6 +23,7 @@ dependencies {
     implementation(Jackson.moduleKotlin)
     implementation(Kotlinx.coroutines)
     implementation(Kotlinx.htmlJvm)
+    implementation(Ktor.authJwt)
     implementation(Ktor.clientApache)
     implementation(Ktor.clientJackson)
     implementation(Ktor.clientJson)

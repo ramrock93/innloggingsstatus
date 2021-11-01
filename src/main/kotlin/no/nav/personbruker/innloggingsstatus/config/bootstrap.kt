@@ -47,7 +47,7 @@ fun Application.mainModule() {
     }
 
     installIdPortenAuth {
-        tokenCookieName = "user_id_token"
+        tokenCookieName = "user_id_token" //todo: konstant
         postLogoutRedirectUri = "https://www.nav.no"
         setAsDefault = true
         securityLevel = SecurityLevel.LEVEL_4

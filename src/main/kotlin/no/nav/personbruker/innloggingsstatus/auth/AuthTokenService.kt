@@ -6,6 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
+import no.nav.personbruker.innloggingsstatus.idporten.IdportenTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
 import no.nav.personbruker.innloggingsstatus.user.SubjectNameService
@@ -15,6 +16,7 @@ import kotlin.coroutines.CoroutineContext
 @KtorExperimentalAPI
 class AuthTokenService(private val oidcTokenService: OidcTokenService,
                        private val openAMTokenService: OpenAMTokenService,
+                       private val idportenTokenService: IdportenTokenService,
                        private val subjectNameService: SubjectNameService,
                        private val metricsCollector: MetricsCollector) {
 
@@ -38,8 +40,9 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
+        val idportenToken = async { idportenTokenService.getIdportenToken(call) }
 
-        val authInfo = AuthInfo(oidcToken.await(), openAMToken.await())
+        val authInfo = AuthInfo(oidcToken.await(), openAMToken.await(), idportenToken.await())
 
         val userInfo = getUserInfo(authInfo)
 
@@ -52,8 +55,9 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     private suspend fun fetchAndParseAuthInfo(call: ApplicationCall): AuthInfo = coroutineScope {
         val oidcToken = async { oidcTokenService.getOidcToken(call) }
         val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
+        val idportenToken = async { idportenTokenService.getIdportenToken(call) }
 
-        AuthInfo(oidcToken.await(), openAMToken.await())
+        AuthInfo(oidcToken.await(), openAMToken.await(), idportenToken.await())
     }
 
     private suspend fun getUserInfo(authInfo: AuthInfo): UserInfo {

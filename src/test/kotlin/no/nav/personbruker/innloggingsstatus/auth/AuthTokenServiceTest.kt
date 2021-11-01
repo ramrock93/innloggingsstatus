@@ -6,6 +6,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
+import no.nav.personbruker.innloggingsstatus.idporten.IdportenTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenInfo
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenInfo
@@ -26,10 +27,11 @@ internal class AuthTokenServiceTest {
 
     private val oidcTokenService: OidcTokenService = mockk()
     private val openAMTokenService: OpenAMTokenService = mockk()
+    private val idportenTokenService: IdportenTokenService = mockk()
     private val subjectNameService: SubjectNameService = mockk()
     private val metricsCollector: MetricsCollector = mockk()
 
-    private val authTokenService = AuthTokenService(oidcTokenService, openAMTokenService, subjectNameService, metricsCollector)
+    private val authTokenService = AuthTokenService(oidcTokenService, openAMTokenService, idportenTokenService, subjectNameService, metricsCollector)
 
     private val call: ApplicationCall = mockk()
 
@@ -44,6 +46,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns tokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -63,6 +66,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns tokenInfo
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -77,6 +81,7 @@ internal class AuthTokenServiceTest {
     fun `should provide correct info when unathenticated`() {
         coEvery { oidcTokenService.getOidcToken(call) } returns null
         coEvery { openAMTokenService.getOpenAMToken(call) } returns null
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(any()) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -104,6 +109,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -131,6 +137,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns oidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns openAmTokenInfo
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -157,6 +164,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns subject1OidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } returns subject2OpenAmTokenInfo
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { subjectNameService.getSubjectName(subject2) } returns subject2Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
@@ -177,6 +185,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } throws Exception()
         coEvery { openAMTokenService.getOpenAMToken(call) } returns subject2OpenAmTokenInfo
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 
@@ -198,6 +207,7 @@ internal class AuthTokenServiceTest {
 
         coEvery { oidcTokenService.getOidcToken(call) } returns subject1OidcTokenInfo
         coEvery { openAMTokenService.getOpenAMToken(call) } throws Exception()
+        coEvery { idportenTokenService.getIdportenToken(call) } returns null
         coEvery { subjectNameService.getSubjectName(subject1) } returns subject1Name
         coEvery { metricsCollector.recordAuthMetrics(any(), any(), any()) } returns Unit
 

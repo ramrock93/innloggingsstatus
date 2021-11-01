@@ -10,6 +10,7 @@ import no.nav.personbruker.dittnav.common.cache.EvictingCache
 import no.nav.personbruker.dittnav.common.cache.EvictingCacheConfig
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
+import no.nav.personbruker.innloggingsstatus.idporten.IdportenTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenValidator
 import no.nav.personbruker.innloggingsstatus.openam.*
@@ -36,6 +37,8 @@ class ApplicationContext(config: ApplicationConfig) {
     val openAMTokenInfoProvider = setupOpenAmTokenInfoProvider(openAMConsumer, environment)
     val openAMValidationService = OpenAMTokenService(openAMTokenInfoProvider)
 
+    val idportenTokenService = IdportenTokenService()
+
     val stsConsumer = STSConsumer(httpClient, environment)
     val pdlConsumer = PdlConsumer(httpClient, environment)
     val stsService = resolveStsService(stsConsumer, environment)
@@ -47,7 +50,7 @@ class ApplicationContext(config: ApplicationConfig) {
     val metricsReporter = resolveMetricsReporter(environment)
     val metricsCollector = MetricsCollector(metricsReporter)
 
-    val authTokenService = AuthTokenService(oidcValidationService, openAMValidationService, subjectNameService, metricsCollector)
+    val authTokenService = AuthTokenService(oidcValidationService, openAMValidationService, idportenTokenService, subjectNameService, metricsCollector)
 
     val selfTests = listOf(openAMConsumer, stsConsumer, pdlConsumer)
 }
