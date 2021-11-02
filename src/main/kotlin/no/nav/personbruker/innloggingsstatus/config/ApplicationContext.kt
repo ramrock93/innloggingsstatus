@@ -2,18 +2,24 @@ package no.nav.personbruker.innloggingsstatus.config
 
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
+import no.nav.personbruker.dittnav.common.cache.EvictingCache
+import no.nav.personbruker.dittnav.common.cache.EvictingCacheConfig
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influx.SensuConfig
-import no.nav.personbruker.dittnav.common.cache.EvictingCache
-import no.nav.personbruker.dittnav.common.cache.EvictingCacheConfig
 import no.nav.personbruker.innloggingsstatus.auth.AuthTokenService
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.idporten.IdportenTokenService
+import no.nav.personbruker.innloggingsstatus.idporten.IdportenTokenValidator
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenValidator
-import no.nav.personbruker.innloggingsstatus.openam.*
+import no.nav.personbruker.innloggingsstatus.openam.CachingOpenAmTokenInfoProvider
+import no.nav.personbruker.innloggingsstatus.openam.NonCachingOpenAmTokenInfoProvider
+import no.nav.personbruker.innloggingsstatus.openam.OpenAMConsumer
+import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenInfo
+import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenInfoProvider
+import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
 import no.nav.personbruker.innloggingsstatus.pdl.PdlConsumer
 import no.nav.personbruker.innloggingsstatus.pdl.PdlService
 import no.nav.personbruker.innloggingsstatus.sts.CachingStsService
@@ -37,7 +43,8 @@ class ApplicationContext(config: ApplicationConfig) {
     val openAMTokenInfoProvider = setupOpenAmTokenInfoProvider(openAMConsumer, environment)
     val openAMValidationService = OpenAMTokenService(openAMTokenInfoProvider)
 
-    val idportenTokenService = IdportenTokenService()
+    val idportenTokenValidator = IdportenTokenValidator()
+    val idportenTokenService = IdportenTokenService(idportenTokenValidator)
 
     val stsConsumer = STSConsumer(httpClient, environment)
     val pdlConsumer = PdlConsumer(httpClient, environment)

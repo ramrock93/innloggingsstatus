@@ -4,14 +4,12 @@ import io.ktor.application.ApplicationCall
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import no.nav.personbruker.innloggingsstatus.common.metrics.MetricsCollector
 import no.nav.personbruker.innloggingsstatus.idporten.IdportenTokenService
 import no.nav.personbruker.innloggingsstatus.oidc.OidcTokenService
 import no.nav.personbruker.innloggingsstatus.openam.OpenAMTokenService
 import no.nav.personbruker.innloggingsstatus.user.SubjectNameService
 import org.slf4j.LoggerFactory
-import kotlin.coroutines.CoroutineContext
 
 @KtorExperimentalAPI
 class AuthTokenService(private val oidcTokenService: OidcTokenService,
@@ -47,7 +45,6 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
         val userInfo = getUserInfo(authInfo)
 
         metricsCollector.recordAuthMetrics(authInfo, userInfo, call)
-
 
         userInfo
     }
