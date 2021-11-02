@@ -1,7 +1,13 @@
 package no.nav.personbruker.innloggingsstatus.config
 
+import com.auth0.jwk.JwkProvider
+import com.auth0.jwk.JwkProviderBuilder
+import io.ktor.client.HttpClient
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
+import java.net.URL
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.common.cache.EvictingCache
 import no.nav.personbruker.dittnav.common.cache.EvictingCacheConfig
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
@@ -35,6 +41,8 @@ class ApplicationContext(config: ApplicationConfig) {
     val environment = Environment()
 
     val httpClient = HttpClientBuilder.build()
+    val metadata = fetchMetadata(httpClient, environment.idportenWellKnownUrl)
+    val jwkProvider = createJwkProvider(metadata)
 
     val oidcTokenValidator = OidcTokenValidator(config)
     val oidcValidationService = OidcTokenService(oidcTokenValidator, environment)
@@ -44,7 +52,7 @@ class ApplicationContext(config: ApplicationConfig) {
     val openAMValidationService = OpenAMTokenService(openAMTokenInfoProvider)
 
     val idportenTokenValidator = IdportenTokenValidator()
-    val idportenTokenService = IdportenTokenService(idportenTokenValidator)
+    val idportenTokenService = IdportenTokenService(this, idportenTokenValidator)
 
     val stsConsumer = STSConsumer(httpClient, environment)
     val pdlConsumer = PdlConsumer(httpClient, environment)
@@ -123,3 +131,12 @@ private fun setupOpenAMTokenInfoCache(environment: Environment): EvictingCache<S
 
     return EvictingCache(evictingCacheConfig)
 }
+
+private fun fetchMetadata(httpClient: HttpClient, idPortenUrl: String) = runBlocking {
+    httpClient.getOAuthServerConfigurationMetadata(idPortenUrl)
+}
+
+private fun createJwkProvider(metadata: OauthServerConfigurationMetadata): JwkProvider = JwkProviderBuilder(URL(metadata.jwksUri))
+    .cached(10, 24, TimeUnit.HOURS)
+    .rateLimited(10, 1, TimeUnit.MINUTES)
+    .build()

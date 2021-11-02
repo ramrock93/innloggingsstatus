@@ -1,16 +1,21 @@
 package no.nav.personbruker.innloggingsstatus.idporten
 
-import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import io.ktor.application.ApplicationCall
+import io.ktor.util.KtorExperimentalAPI
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
+import no.nav.personbruker.innloggingsstatus.config.ApplicationContext
 
-class IdportenTokenService(private val idportenTokenValidator: IdportenTokenValidator) {
+@KtorExperimentalAPI
+class IdportenTokenService(private val applicationContext: ApplicationContext,
+                           private val idportenTokenValidator: IdportenTokenValidator) {
     fun getIdportenToken(call: ApplicationCall): IdportenTokenInfo? {
+        val verifier = createVerifier(applicationContext)
+
         return idportenTokenValidator.getValidToken(call)?.let {
-            val decodedToken = JWT.decode(it)
+            val decodedToken = verifier.verifyAccessToken(it)
             return IdportenTokenInfo(
                 decodedToken.subject,
                 extractLoginLevel(decodedToken),
@@ -19,6 +24,13 @@ class IdportenTokenService(private val idportenTokenValidator: IdportenTokenVali
             )
         }
     }
+
+    private fun createVerifier(applicationContext: ApplicationContext) =
+        TokenVerifier(
+            jwkProvider = applicationContext.jwkProvider,
+            clientId = applicationContext.environment.idportenClientId,
+            issuer = applicationContext.metadata.issuer
+        )
 
     private fun extractLoginLevel(token: DecodedJWT): Int {
         return when (token.getClaim("acr").asString()) {

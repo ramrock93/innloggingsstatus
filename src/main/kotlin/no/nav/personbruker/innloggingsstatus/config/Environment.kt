@@ -35,5 +35,9 @@ data class Environment(
     val subjectNameCacheExpiryMinutes: Long = getEnvVarAsLong("SUBJECT_NAME_CACHE_EXPIRY_MINUTES", 30),
     val openAmTokenInfoCacheEnabled: Boolean = getEnvVarAsBoolean("OPEN_AM_TOKEN_INFO_CACHE_ENABLED", false),
     val openAmTokenInfoCacheThreshold: Int = getEnvVarAsInt("OPEN_AM_TOKEN_INFO_CACHE_THRESHOLD", 1024),
-    val openAmTokenInfoCacheExpiryMinutes: Long = getEnvVarAsLong("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", 1)
+    val openAmTokenInfoCacheExpiryMinutes: Long = getEnvVarAsLong("OPEN_AM_TOKEN_INFO_CACHE_EXPIRY_MINUTES", 1),
+    val idportenWellKnownUrl: String = getEnvVar("IDPORTEN_WELL_KNOWN_URL"),
+    val idportenClientId: String = getEnvVar("IDPORTEN_CLIENT_ID"),
+    val idportenClientJwk: String = getEnvVar("IDPORTEN_CLIENT_JWK"),
+    val idportenRedirectUri: String = getEnvVar("IDPORTEN_REDIRECT_URI")
 )

@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version Kotlin.version
     kotlin("plugin.allopen") version Kotlin.version
+    kotlin("plugin.serialization") version (Kotlin.version)
 
     id(Shadow.pluginId) version Shadow.version
 
