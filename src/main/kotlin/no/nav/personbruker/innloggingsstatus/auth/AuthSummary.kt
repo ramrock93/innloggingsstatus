@@ -12,6 +12,7 @@ class AuthSummary private constructor(authInfo: AuthInfo) {
     private val authLevel: Int? = authInfo.authLevel
     private val oidc: OidcSummary? = OidcSummary.fromAuthInfo(authInfo)
     private val openAM: OpenAMSummary? = OpenAMSummary.fromAuthInfo(authInfo)
+    private val idporten: IdportenSummary? = IdportenSummary.fromAuthInfo(authInfo)
 
     companion object {
         fun fromAuthInfo(authInfo: AuthInfo): AuthSummary = AuthSummary(authInfo)
@@ -40,6 +41,20 @@ private data class OpenAMSummary (
             return authInfo.takeIf { it.stable }
                 ?.openAMToken
                 ?.let { openAM -> OpenAMSummary(openAM.authLevel) }
+        }
+    }
+}
+
+private data class IdportenSummary (
+    val authLevel: Int,
+    val issueTime: LocalDateTime,
+    val expiryTime: LocalDateTime
+) {
+    companion object {
+        fun fromAuthInfo(authInfo: AuthInfo): IdportenSummary? {
+            return authInfo.takeIf { it.stable }
+                ?.idportenToken
+                ?.let { idportenToken -> IdportenSummary(idportenToken.authLevel, idportenToken.issueTime, idportenToken.expiryTime) }
         }
     }
 }

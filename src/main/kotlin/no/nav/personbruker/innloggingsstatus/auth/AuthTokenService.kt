@@ -36,11 +36,7 @@ class AuthTokenService(private val oidcTokenService: OidcTokenService,
     }
 
     private suspend fun fetchAndParseAuthenticatedUserInfo(call: ApplicationCall): UserInfo = coroutineScope {
-        val oidcToken = async { oidcTokenService.getOidcToken(call) }
-        val openAMToken = async { openAMTokenService.getOpenAMToken(call) }
-        val idportenToken = async { idportenTokenService.getIdportenToken(call) }
-
-        val authInfo = AuthInfo(oidcToken.await(), openAMToken.await(), idportenToken.await())
+        val authInfo = fetchAndParseAuthInfo(call)
 
         val userInfo = getUserInfo(authInfo)
 
