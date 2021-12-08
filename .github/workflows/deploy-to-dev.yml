@@ -1,0 +1,44 @@
+name: Deploy to dev
+on:
+  workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev-sbs:personbruker
+    env:
+      image: ghcr.io/${{ github.repository }}:${{ github.sha }}:dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.13
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: '~/.gradle/caches
+        ~/.gradle/wrapper'
+          key: ${{ runner.os }}-${{ hashFiles(gradle-'**/*.gradle*') }}
+      - name: Build application
+        run: |
+          ./gradlew clean build
+      - name: Login to Docker
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push docker image
+        run: |
+          docker build -t ${{ env.image }} .
+          docker push ${{ env.image }}
+      - name: Deploy to dev-sbs
+        uses: nais/deploy/actions/deploy@master
+        env:
+          CLUSTER: dev-sbs
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          RESOURCE: .nais/nais.yaml
+          VAR: image=${{ env.image }}
+          VARS: .nais/dev-sbs/personbruker.json
