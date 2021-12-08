@@ -32,13 +32,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push docker image
         run: |
-          docker build -t ${{ env.image }} .
-          docker push ${{ env.image }}
+          docker build -t ${{ env.version }} .
+          docker push ${{ env.version }}
       - name: Deploy to dev-sbs
         uses: nais/deploy/actions/deploy@master
         env:
           CLUSTER: dev-sbs
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           RESOURCE: ./nais/nais.yaml
-          VAR: version=${{ env.image }}
+          VAR: version=${{ env.version }}
           VARS: ./nais/dev-sbs/personbruker.json
