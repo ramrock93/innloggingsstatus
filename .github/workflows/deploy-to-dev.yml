@@ -20,7 +20,7 @@ jobs:
         with:
           path: '~/.gradle/caches
         ~/.gradle/wrapper'
-          key: ${{ runner.os }}-${{ hashFiles(gradle-'**/*.gradle*') }}
+          key: ${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}
       - name: Build application
         run: |
           ./gradlew clean build
