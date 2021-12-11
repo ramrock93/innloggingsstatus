@@ -18,6 +18,14 @@ jobs:
           path: '~/.gradle/caches
         ~/.gradle/wrapper'
           key: ${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}
+      - name: Build application
+        run: |
+          ./gradlew clean build
+  vulnerability-scanning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sjekk ut koden
+        uses: actions/checkout@v2
       - name: Run Snyk for gradle to check for vulnerabilities
         uses: snyk/actions/gradle@master
         env:
@@ -25,6 +33,3 @@ jobs:
         with:
           command: monitor
           args: --org=personbruker --configuration-attributes=usage:java-runtime --project-name=${{ github.repository }} --remote-repo-url=https://github.com/${{ github.repository }}.git
-      - name: Build application
-        run: |
-          ./gradlew clean build
