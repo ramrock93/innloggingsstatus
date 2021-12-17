@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod-sbs:personbruker
     env:
-      version: ghcr.io/${{ github.repository }}:${{ github.sha }}-prod
+      version: ghcr.io/${{ github.repository }}:${{ github.sha }}-$(echo ${GITHUB_REF_NAME})
     steps:
       - name: Checkout
         uses: actions/checkout@v2
